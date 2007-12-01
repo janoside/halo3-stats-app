@@ -42,10 +42,10 @@ def find_player_games(gamer_tag)
       puts "Game List Page #{i} (#{game_page_list.length} Games) Retrieved for #{gamer_tag}."
       
       game_page_list.each do |bungie_id|
-        $adapter.query("select id from games where bungie_id=#{bungie_id.to_s}") {|results|
+        $adapter.query("select id from games where id=#{bungie_id.to_s}") {|results|
           if ( results.num_rows() == 0 )
             # game not present, add it
-            insert_statement = $adapter.prepare("insert into games (bungie_id) values (#{bungie_id})")
+            insert_statement = $adapter.prepare("insert into games (id) values (#{bungie_id})")
             insert_statement.execute()
             
             puts "Bungie Game (ID=#{bungie_id}) Inserted."
