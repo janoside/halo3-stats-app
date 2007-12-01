@@ -1,6 +1,7 @@
 require 'rubygems'
 require 'open-uri'
 require 'hpricot'
+require 'persistence.rb'
 
 BASE_PAGE_DETAIL_URL = "http://www.bungie.net/stats/gamestatshalo3.aspx?gameid="
 @response = ''
@@ -15,7 +16,7 @@ end
 
 def get_unloaded_games()
   bungie_ids = []
-  $adapter.query("select bungie_id from games where loaded=0 limit 1") {|results|
+  $adapter.query("select id from games where loaded=0") {|results|
     puts "Found #{results.num_rows()} Unloaded Games."
     results.each do |bungie_id|
       bungie_ids << bungie_id[0].to_i
@@ -37,25 +38,46 @@ def save_game_detail(bungie_game_id)
     # HPricot RDoc: http://code.whytheluckystiff.net/hpricot/
     doc = Hpricot(@response)
     
+    game_detail = {:id => bungie_game_id}
+    
     # Retrive number of comments
     playlist_str = (doc/"/html/body/div/form/div[3]/div[2]/div[2]/div/div/div[3]/div/ul/li[4]").inner_html.to_s
     if ( !playlist_str.nil? )
       playlist_str = playlist_str[playlist_str.index('-') + 2, playlist_str.index('&') - (playlist_str.index('-') + 2)]
-      save_playlist(playlist_str)
+      game_detail[:playlist] = playlist_str
     end
-    save_playlist(playlist_str)
+    
+    map_str = (doc/"/html/body/div/form/div[3]/div[2]/div[2]/div/div/div[3]/div/ul/li").inner_html.to_s
+    if ( !map_str.nil? )
+      map_str = map_str[map_str.index(' on ') + ' on '.length, map_str.length - (map_str.index(' on ') + ' on '.length)]
+      map_str = map_str[0, map_str.index('&')]
+      game_detail[:map] = map_str
+    end
     
     time_str = (doc/"/html/body/div/form/div[3]/div[2]/div[2]/div/div/div[3]/div/ul/li[5]").inner_html.to_s
     if ( !time_str.nil? )
       time_str = time_str[0, time_str.index('&')]
-      puts time_str.inspect
+      game_time = Time.parse(time_str)
+      game_detail[:time] = game_time
     end
     
     length_str = (doc/"/html/body/div/form/div[3]/div[2]/div[2]/div/div/div[3]/div/ul/li[6]").inner_html.to_s
     if ( !length_str.nil? )
       length_str = length_str['Length:'.length + 1, length_str.index('&') - ('Length:'.length + 1)]
-      puts length_str.inspect
+      
+      hours = length_str[0, length_str.index(':')].to_i
+      length_str = length_str[length_str.index(':')+ 1, length_str.length - (length_str.index(':')+ 1)]
+      mins = length_str[0, length_str.index(':')].to_i
+      length_str = length_str[length_str.index(':')+ 1, length_str.length - (length_str.index(':')+ 1)]
+      secs = length_str.to_i
+      
+      total_secs = 3600 * hours + 60 * mins + secs
+      game_detail[:length] = total_secs
     end
+    
+    puts game_detail.inspect
+    
+    persist_game_detail(game_detail)
     
     title_strs = []
     for i in 2..35
@@ -98,7 +120,8 @@ def save_game_detail(bungie_game_id)
             :team => team_id,
             :index => dat[:index],
             :place => place,
-            :score => dat[:score]
+            :score => dat[:score],
+            :game_id => bungie_game_id
           }
         end
       end
@@ -112,6 +135,10 @@ def save_game_detail(bungie_game_id)
       betrays_str   = (doc/"/html/body/div/form/div[3]/div[2]/div[2]/div/div/div[3]/div[2]/div[2]/div[3]/div/div/div/div/div/div/table/tr[#{player[:index]}]/td[7]").inner_html.to_s
       headshots_str = (doc/"/html/body/div/form/div[3]/div[2]/div[2]/div/div/div[3]/div[2]/div[2]/div[5]/div/div/div/div/div/div/table/tr[#{player[:index]}]/td[2]").inner_html.to_s
       spree_str     = (doc/"/html/body/div/form/div[3]/div[2]/div[2]/div/div/div[3]/div[2]/div[2]/div[5]/div/div/div/div/div/div/table/tr[#{player[:index]}]/td[3]").inner_html.to_s
+               #             /html/body/div/form/div[3]/div[2]/div[2]/div/div/div[3]/div[2]/div[2]/div[4]/div/div/div/div/div/div/table/tr[3]/td[7]/div/div/div/ul/li[2]/div/div[2]
+  #                          /html/body/div/form/div[3]/div[2]/div[2]/div/div/div[3]/div[2]/div[2]/div[5]/div/div/div/div/div/div/table/tr[#{player[:index]}]/td[6]/div/div/div/ul/li[2]
+   #                         /html/body/div/form/div[3]/div[2]/div[2]/div/div/div[3]/div[2]/div[2]/div[5]/div/div/div/div/div/div/table/tr[#{player[:index]}]/td[6]/div/div/div/ul/li[2]/div/div
+   #                         /html/body/div/form/div[3]/div[2]/div[2]/div/div/div[3]/div[2]/div[2]/div[4]/div/div/div/div/div/div/table/tr[3]/td[7]/div/div/div/ul/li[2]/div/div[2]
 
       player[:kills] = kills_str.to_i
       player[:assists] = assists_str.to_i
@@ -121,49 +148,40 @@ def save_game_detail(bungie_game_id)
       player[:headshots] = headshots_str.to_i
       player[:best_spree] = spree_str.to_i
       
-      save_player(player[:name])
+      player[:killed_players] = []
+      player[:weapons] = []
+      
+      for i in 2..20
+        kill_data = (doc/"/html/body/div/form/div[3]/div[2]/div[2]/div/div/div[3]/div[2]/div[2]/div[5]/div/div/div/div/div/div/table/tr[#{player[:index]}]/td[6]/div/div/div/ul/li[#{i.to_s}]/div/div").inner_html.to_s
+        if ( kill_data.length > 0 )
+          name = kill_data[0, kill_data.index(':')]
+          count = kill_data[kill_data.index(':') + 2, kill_data.length - (kill_data.index(':') + 2)].to_i
+          
+          player[:killed_players] << {:name => name, :kills => count}
+        end
+      end
+      
+      for i in 2..15
+        weapon = (doc/"/html/body/div/form/div[3]/div[2]/div[2]/div/div/div[3]/div[2]/div[2]/div[4]/div/div/div/div/div/div/table/tr[#{player[:index]}]/td[7]/div/div/div/ul/li[#{i.to_s}]/div/div[2]").inner_html.to_s
+        kills =  (doc/"/html/body/div/form/div[3]/div[2]/div[2]/div/div/div[3]/div[2]/div[2]/div[4]/div/div/div/div/div/div/table/tr[#{player[:index]}]/td[7]/div/div/div/ul/li[#{i.to_s}]/div/div[3]").inner_html.to_s
+        
+        if ( weapon.length > 0 )
+          save_weapon(weapon)
+          
+          if ( kills.index(' ').nil? )
+            kill_count = kills.to_i
+          else
+            kill_count = kills[0, kills.index(' ')].to_i
+          end
+          
+          player[:weapons] << {:name => weapon, :kills => kill_count}
+        end
+      end
+      
+      persist_player_data(player)
     end
-    
-    puts players.inspect
 
   rescue Exception => e
     exception(e)
   end
-end
-
-def save_playlist(playlist_str)
-  $adapter.query("select id from playlists where name='#{playlist_str}'") {|results|
-    if ( results.num_rows() == 0 )
-      insert_statement = $adapter.prepare("insert into playlists (name) values ('#{playlist_str}')")
-      insert_statement.execute()
-    end
-  }
-end
-
-def save_team(team_name)
-  $adapter.query("select id from teams where name='#{team_name}'") {|results|
-    if ( results.num_rows() == 0 )
-      insert_statement = $adapter.prepare("insert into teams (name) values ('#{team_name}')")
-      insert_statement.execute()
-    end
-  }
-  
-  team_id = 0
-  $adapter.query("select id from teams where name='#{team_name}'") {|results|
-    results.each do |result|
-      puts result.inspect
-      team_id = result[0].to_i
-    end
-  }
-  
-  return team_id
-end
-
-def save_player(player_name)
-  $adapter.query("select id from players where name='#{player_name}'") {|results|
-    if ( results.num_rows() == 0 )
-      insert_statement = $adapter.prepare("insert into players (name) values ('#{player_name}')")
-      insert_statement.execute()
-    end
-  }
 end
