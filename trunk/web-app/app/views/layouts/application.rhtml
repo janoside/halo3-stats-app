@@ -1,0 +1,36 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<title>Halo 3 Stats</title>
+		<%= stylesheet_link_tag "reset", "main" %>
+		<%= javascript_include_tag "prototype", "effects", "controls" %>
+		
+		<!-- compliance patch for microsoft browsers -->
+		<!--[if lt IE 7]>
+		<%= javascript_include_tag "ie7/ie7-standard-p.js"%>
+		<![endif]-->
+	</head>
+	<body>
+		<table style="width: 100%;">
+			<tr style="vertical-align: top;">
+				<% if ( @logged_in ) -%>
+				<td style="width: 175px;">
+					<div id="menu" class="floatLeft">
+						<%= render(:partial => 'application/menu') %>
+				    </div>
+				</td>
+				<% end -%>
+				<td>
+					<div id="content">
+						<% if ( @logged_in ) -%>
+						<div id="title">
+							<%= PAGE_TITLES[params[:controller]+'/'+params[:action]]%>
+						</div>
+						<% end -%>
+						<%= @content_for_layout %>
+					</div>
+				</td>
+			</tr>
+		</table>
+	</body>
+</html>

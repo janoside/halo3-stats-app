@@ -1,0 +1,14 @@
+<% 
+def get_player(index)
+end
+-%>
+<table style="width: 100%;">
+	<tr>
+		<% index = 0 %>
+		<% @players.each do |player| -%>
+		<td>
+			<a href="#"><%= player[:name] %></a>
+		</td>
+		<% end -%>
+	</tr>
+</table>

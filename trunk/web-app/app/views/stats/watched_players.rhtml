@@ -1,0 +1,32 @@
+<p>
+	The players shown below have already been linked to your profile.  You can link new players to your profile by entering their gamer tag below.
+	<br />
+	Only 'Visible' gamer tags will be displayed on any results pages.  You can toggle a player's visibility by selecting <i>Hide</i> or <i>Show</i> accordingly.
+</p>
+
+<br />
+
+<b>Link Gamer Tag:</b>
+<%=
+    form_remote_tag(
+        :url => {
+            :controller => 'stats',
+            :action     => 'add_watched_player'
+        },
+        :update   => 'watchedPlayers',
+        :loading  => update_content('status', :show => true, :content => loading_tag('Saving')),
+        :success  => update_content('status', :show => false),
+        :complete => visual_effect(:blind_down, :userList, :duration => '0.0'),
+        :failure  => "alert('Oops, try again.');"
+    )
+%>
+<input type="text" name="gamer_tag" id="gamer_tag" />
+<input type="submit" value="Save" />
+<span id="status" class="loadingIndicator"></span>
+<%= end_form_tag -%>
+
+<br />
+
+<div id="watchedPlayers">
+<%= render(:partial => 'watched_players') %>
+</div>

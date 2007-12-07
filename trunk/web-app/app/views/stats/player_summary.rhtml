@@ -1,0 +1,28 @@
+<fieldset class="field">
+	<legend>Gamer Tag</legend>
+<%=
+    form_remote_tag(
+        :url => {
+            :controller => 'stats',
+            :action     => 'get_player_summary'
+        },
+        :update   => 'summary',
+        :loading  => update_content('status', :show => true, :content => loading_tag('Saving')),
+        :success  => update_content('status', :show => false),
+        :complete => visual_effect(:blind_down, :userList, :duration => '0.0'),
+        :failure  => "alert('Oops, try again.');"
+    )
+%>
+<input type="text" name="gamer_tag" id="gamer_tag" />
+<input type="submit" value="Save" />
+<span id="status" class="loadingIndicator"></span>
+<%= end_form_tag -%>
+</fieldset>
+
+<br />
+
+<fieldset class="field">
+<legend>Summary</legend>
+<div id="summary">
+</div>
+</fieldset>
