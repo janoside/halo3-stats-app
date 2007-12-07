@@ -61,6 +61,12 @@ def save_game_detail(bungie_game_id)
       game_detail[:time] = game_time
     end
     
+    game_type_str = (doc/"/html/body/div/form/div[3]/div[2]/div[2]/div/div/div[3]/div/ul/li").inner_html.to_s
+    if ( !game_type_str.nil? )
+      game_type_str = game_type_str[0, game_type_str.index(' on ')]
+      game_detail[:game_type] = game_type_str
+    end
+    
     length_str = (doc/"/html/body/div/form/div[3]/div[2]/div[2]/div/div/div[3]/div/ul/li[6]").inner_html.to_s
     if ( !length_str.nil? )
       length_str = length_str['Length:'.length + 1, length_str.index('&') - ('Length:'.length + 1)]
@@ -127,7 +133,10 @@ def save_game_detail(bungie_game_id)
       end
     end
     
+    player_index = 0
     players.each do |player|
+      puts player.inspect
+      
       kills_str     = (doc/"/html/body/div/form/div[3]/div[2]/div[2]/div/div/div[3]/div[2]/div[2]/div[3]/div/div/div/div/div/div/table/tr[#{player[:index]}]/td[2]").inner_html.to_s
       assists_str   = (doc/"/html/body/div/form/div[3]/div[2]/div[2]/div/div/div[3]/div[2]/div[2]/div[3]/div/div/div/div/div/div/table/tr[#{player[:index]}]/td[3]").inner_html.to_s
       deaths_str    = (doc/"/html/body/div/form/div[3]/div[2]/div[2]/div/div/div[3]/div[2]/div[2]/div[3]/div/div/div/div/div/div/table/tr[#{player[:index]}]/td[4]").inner_html.to_s
@@ -135,6 +144,11 @@ def save_game_detail(bungie_game_id)
       betrays_str   = (doc/"/html/body/div/form/div[3]/div[2]/div[2]/div/div/div[3]/div[2]/div[2]/div[3]/div/div/div/div/div/div/table/tr[#{player[:index]}]/td[7]").inner_html.to_s
       headshots_str = (doc/"/html/body/div/form/div[3]/div[2]/div[2]/div/div/div[3]/div[2]/div[2]/div[5]/div/div/div/div/div/div/table/tr[#{player[:index]}]/td[2]").inner_html.to_s
       spree_str     = (doc/"/html/body/div/form/div[3]/div[2]/div[2]/div/div/div[3]/div[2]/div[2]/div[5]/div/div/div/div/div/div/table/tr[#{player[:index]}]/td[3]").inner_html.to_s
+#                            /html/body/div/form/div[3]/div[2]/div[2]/div/div/div[3]/div[3]/div[2]/div[7]/table/tbody/tr/td/div/div/div[2]/div/div[2]/ul/li
+#                            
+#                            /html/body/div/form/div[3]/div[2]/div[2]/div/div/div[3]/div[3]/div[2]/div[7]/table/tbody/tr/td/div/div/div[2]/div/div[2]/ul/li
+#                            /html/body/div/form/div[3]/div[2]/div[2]/div/div/div[3]/div[3]/div[2]/div[7]/table/tbody/tr[2]/td/div/div/div[2]/div/div[2]/ul/li
+#                            /html/body/div/form/div[3]/div[2]/div[2]/div/div/div[3]/div[3]/div[2]/div[7]/table/tbody/tr[3]/td/div/div/div[2]/div/div[2]/ul/li
                #             /html/body/div/form/div[3]/div[2]/div[2]/div/div/div[3]/div[2]/div[2]/div[4]/div/div/div/div/div/div/table/tr[3]/td[7]/div/div/div/ul/li[2]/div/div[2]
   #                          /html/body/div/form/div[3]/div[2]/div[2]/div/div/div[3]/div[2]/div[2]/div[5]/div/div/div/div/div/div/table/tr[#{player[:index]}]/td[6]/div/div/div/ul/li[2]
    #                         /html/body/div/form/div[3]/div[2]/div[2]/div/div/div[3]/div[2]/div[2]/div[5]/div/div/div/div/div/div/table/tr[#{player[:index]}]/td[6]/div/div/div/ul/li[2]/div/div
@@ -150,6 +164,27 @@ def save_game_detail(bungie_game_id)
       
       player[:killed_players] = []
       player[:weapons] = []
+      
+#      for i in 0..50
+#        player_index_str = ((player_index == 0) ? '' : "[#{player_index}]")
+#        index_str = ((i == 0) ? '' : "[#{i.to_s}]")
+#        
+#        medal_str = (doc/"/html/body/div/form/div[3]/div[2]/div[2]/div/div/div[3]/div[2]/div[2]/div[7]/table/tr#{player_index_str}/td/div/div/div[2]/div/div[2]/ul/li#{index_str}").inner_html.to_s
+#        puts medal_str
+#                     #     /html/body/div/form/div[3]/div[2]/div[2]/div/div/div[3]/div[2]/div[2]/div[7]/table/tbody/tr/td/div/div/div[2]/div/div[2]/ul/li
+#                      #    /html/body/div/form/div[3]/div[2]/div[2]/div/div/div[3]/div[2]/div[2]/div[7]/table/tbody/tr[2]/td/div/div/div[2]/div/div[2]/ul/li
+#        if ( medal_str.length == 0 )
+#          break
+#        end
+#        
+#        medal_str = medal_str[medal_str.index('src=') + 5, medal_str.length - (medal_str.index('src=') + 5)]
+#        medal_str = medal_str[0, medal_str.index('"')]
+#        
+#        count_str = (doc/"/html/body/div/form/div[3]/div[2]/div[2]/div/div/div[3]/div[2]/div[2]/div[7]/table/tr#{player_index_str}/td/div/div/div[2]/div/div[2]/ul/li#{index_str}/div").inner_html.to_s
+#        
+#        puts medal_str
+#        puts count_str
+#      end
       
       for i in 2..20
         kill_data = (doc/"/html/body/div/form/div[3]/div[2]/div[2]/div/div/div[3]/div[2]/div[2]/div[5]/div/div/div/div/div/div/table/tr[#{player[:index]}]/td[6]/div/div/div/ul/li[#{i.to_s}]/div/div").inner_html.to_s
@@ -179,6 +214,8 @@ def save_game_detail(bungie_game_id)
       end
       
       persist_player_data(player)
+      
+      player_index = player_index + 1
     end
 
   rescue Exception => e

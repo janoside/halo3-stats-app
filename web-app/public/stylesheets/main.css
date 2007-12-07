@@ -1,0 +1,59 @@
+* {margin: 0px; padding: 0px;}
+
+body {font-family: arial, verdana, sans-serif; font-size: 85%;}
+
+#statusBar {border-bottom: solid 1px #ccc; height: 25px; padding: 1px;}
+#menu {width: 200px; border-right: solid 1px #ccc; min-height: 500px; padding: 10px;}
+	#menu .menuHeader {margin-bottom: 10px; color: #fff;}
+	#menu .menuTitle {font-weight: bold; background: url(/images/pag_bg.jpg) repeat; border: solid 1px #121250; padding: 2px;}
+		a.menuItemLink:hover {background: #cbebff; color: #000;}
+		a.menuItemLink:link, #menu a.menuItemLink:visited {text-decoration: none; padding: 2px; display: block; color: #000;}
+
+#menuTop {background: solid 1px #ccc;}
+
+p {padding: 5px;}
+.pList {margin-left: 15px;}
+
+#title {border-bottom: solid 1px #ccc; font-size: 125%; font-weight: bold; margin-bottom: 10px;}
+
+#content {padding: 15px;}
+#footer {text-align: center;}
+
+.floatRight {float: right;}
+.floatLeft {float: left;}
+
+a:link, a:visited {color: #3535dd;}
+a:hover {color: #353580;}
+
+#loginForm {text-align: center; vertical-align: middle; margin-top: 200 px; margin-bottom: 200px;}
+
+.multiSelect {width: 225px;}
+
+.dataTable {border: solid 1px #777; padding: 3px; width: 100%;}
+	.dataTable td {padding: 4px;}
+	.dataTable .columnLabel {background: url(/images/pag_bg.jpg) repeat;}
+	.dataTable thead {border: solid 1px #777; padding: 0px;}
+	.dataTable .rowA {background: #cbebff;}
+
+a.sortButton:hover {background: #ccc; color: #000;}
+	a.sortButton:link, a.sortButton:visited {text-decoration: none; padding: 5px; display: block; font-weight: bold; color: #000;}
+
+/*
+
+.dataTable {border: solid 1px #777; padding: 4px; width: 100%;}
+	.dataTable td {padding: 5px;}
+	.dataTable .columnLabel {background: #aaa;}
+	.dataTable thead {border: solid 1px #777; padding: 0px;}
+	.dataTable .rowA {background: #dafaff;}
+	
+	a.sortButton:hover {background: #ccc; color: #000;}
+	a.sortButton:link, a.sortButton:visited {text-decoration: none; padding: 5px; display: block; font-weight: bold; color: #000;}
+	
+.lightBorder {border: solid 1px #eee;}
+.midBorder {border: solid 1px #aaa;}
+.darkBorder {border: solid 1px #555;}
+
+.pad {padding: 5px;}
+fieldset legend {margin-left: 20px; margin-top: 5px;}
+fieldset {border: solid 1px #b6b6b6; padding: 5px;}
+*/

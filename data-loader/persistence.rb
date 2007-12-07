@@ -2,6 +2,7 @@ $players = {}
 $weapons = {}
 $playlists = {}
 $maps = {}
+$game_types = {}
 
 def save_playlist(playlist_str)
   if ( !$playlists.has_key?(playlist_str) )
@@ -24,6 +25,29 @@ def save_playlist(playlist_str)
   end
   
   return $playlists[playlist_str]
+end
+
+def save_game_type(name)
+  if ( !$game_types.has_key?(name) )
+    $adapter.query("select id from game_types where name='#{name}'") {|results|
+      if ( results.num_rows() == 0 )
+        insert_statement = $adapter.prepare("insert into game_types (name) values ('#{name}')")
+        insert_statement.execute()
+        
+        $adapter.query("select id from game_types where name='#{name}'") {|results|
+          results.each do |result|
+            $game_types[name] = result[0].to_i
+          end
+        }
+      else
+        results.each do |result|
+          $game_types[name] = result[0].to_i
+        end
+      end
+    }
+  end
+  
+  return $game_types[name]
 end
 
 def save_map(name)
@@ -114,9 +138,10 @@ end
 
 def persist_game_detail(dat)
   playlist_id = save_playlist(dat[:playlist])
-  map_id = save_map(dat[:playlist])
+  map_id = save_map(dat[:map])
+  game_type_id = save_game_type(dat[:game_type])
   
-  sql = "update games set playlist_id=#{playlist_id}, map_id=#{map_id}, date='#{sql_time(dat[:time])}', length=#{dat[:length]}, loaded=1 where id=#{dat[:id]}"
+  sql = "update games set playlist_id=#{playlist_id}, map_id=#{map_id}, game_type_id=#{game_type_id}, date='#{sql_time(dat[:time])}', length=#{dat[:length]}, loaded=1 where id=#{dat[:id]}"
   
   puts sql.to_s
   
