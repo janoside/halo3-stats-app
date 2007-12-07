@@ -1,0 +1,68 @@
+<table style="width: 100%;">
+<tr style="vertical-align: top;">
+<td style="width: 47%;">
+
+<b>Visible Players</b>
+<table class="dataTable">
+<thead>
+	<tr>
+		<td class="columnLabel" style="width: 75%;">
+			Gamer Tag
+		</td>
+		<td class="columnLabel">
+			Actions
+		</td>
+	</tr>
+</thead>
+<% row_index = 0 -%>
+<% @watched_players.each do |watched_player| -%>
+<% if ( watched_player['visible'].to_s == '1' ) -%>
+<tr <%= 'class="rowA"' if ( (row_index % 2) == 1 ) -%>>
+	<td style="width: 75%;">
+		<%= watched_player['player_name'] %>
+	</td>
+	<td>
+		<a class="sortButton" onclick="new Ajax.Updater('watchedPlayers', '/stats/set_watched_player_visibility?gamer_tag=<%= watched_player['player_name'] %>&active=0', {asynchronous:true, evalScripts:true, onFailure:function(request){alert('Oops, try again.');}}); return false;" href="#">Hide</a>
+	</td>
+</tr>
+<% row_index = row_index + 1 -%>
+<% end -%>
+<% end -%>
+</table>
+
+</td>
+<td style="width: 6%;">
+</td>
+<td style="width: 47%;">
+
+<b>Hidden Players</b>
+<table class="dataTable">
+<thead>
+	<tr>
+		<td class="columnLabel" style="width: 75%;">
+			Gamer Tag
+		</td>
+		<td class="columnLabel">
+			Actions
+		</td>
+	</tr>
+</thead>
+<% row_index = 0 -%>
+<% @watched_players.each do |watched_player| -%>
+<% if ( watched_player['visible'].to_s != '1' ) -%>
+<tr <%= 'class="rowA"' if ( (row_index % 2) == 1 ) -%>>
+	<td style="width: 75%;">
+		<%= watched_player['player_name'] %>
+	</td>
+	<td>
+		<a class="sortButton" onclick="new Ajax.Updater('watchedPlayers', '/stats/set_watched_player_visibility?gamer_tag=<%= watched_player['player_name'] %>&active=1', {asynchronous:true, evalScripts:true, onFailure:function(request){alert('Oops, try again.');}}); return false;" href="#">Show</a>
+	</td>
+</tr>
+<% row_index = row_index + 1 -%>
+<% end -%>
+<% end -%>
+</table>
+
+</td>
+</tr>
+</table>

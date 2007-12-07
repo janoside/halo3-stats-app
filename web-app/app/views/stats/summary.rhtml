@@ -1,0 +1,170 @@
+<p>
+	Below is the summary data for all visible players.  You can filter the results by any number of playlists, maps, and/or game types.
+	<br />
+	You can also sort the data by clicking on the header of each column.
+</p>
+
+<br />
+
+<% form_tag do -%>
+<fieldset>
+	<legend><b>Filters</b>&nbsp;<small>(<a href="">Clear All</a>)</filters>
+	
+	<table>
+		<tr>
+			<td>
+				Playlist
+				<br />
+				<select id="playlist" multiple size="10" class="multiSelect">
+					<option selected>&nbsp;*</option>
+					<% @playlists.each do |playlist| -%>
+					<option><%= playlist['name'] %></option>
+					<% end -%>
+				</select>
+			</td>
+			<td>
+				Map
+				<br />
+				<select id="map" multiple size="10" class="multiSelect">
+					<option selected>&nbsp;*</option>
+					<% @maps.each do |map| -%>
+					<option><%= map['name'] %></option>
+					<% end -%>
+				</select>
+			</td>
+			<td>
+				Game Type
+				<br />
+				<select id="game_type" multiple size="10" class="multiSelect">
+					<option selected>&nbsp;*</option>
+					<% @game_types.each do |game_type| -%>
+					<option><%= game_type['name'] %></option>
+					<% end -%>
+				</select>
+			</td>
+			<td>
+			<input type="submit" value="Apply Filters" />
+			</td>
+		</tr>
+	</table>
+	
+	
+	<% if ( false ) -%>
+	<fieldset>
+		<legend>Playlist</playlist>
+		
+		<%		
+		rows = []
+		for i in 1..2
+			rows << {:index => i, :items => []}
+		end
+		
+		i = 0
+		while ( i < @playlists.length )
+			rows.each do |row|
+				if ( !@playlists[i].nil? )
+					row[:items] << @playlists[i]
+				end
+				i = i + 1
+			end
+		end
+		
+		%>
+		<table style="width: 100%;">
+			<% rows.each do |row| -%>
+			<tr>
+				<% row[:items].each do |item| -%>
+				<td class="columnLabel">
+					<a id="filterPlaylist<%= item['name'].gsub(' ', '') %>Link" onclick="new Ajax.Updater('summary', '/stats/summary_filter?filter_type=playlist&filter_value=<%= item['name'].to_s.gsub(' ', '_')%>', {asynchronous:true, evalScripts:true, onFailure:function(request){alert('Oops, try again.');}}); return false;" href="#"><%= item['name'] %></a><span id="filterPlaylist<%= item['name'].gsub(' ', '') %>Span" style="display: none;"><%= item['name'] %></span><%= ' (R)' if ( item['ranked'].to_s == 'true' ) %>
+				</td>
+				<% end -%>
+			</tr>
+			<% end -%>
+		</table>
+	</fieldset>
+	
+	<fieldset style="padding: 5px;">
+		<legend>Map</legend>
+			
+		<table style="width: 96%;">
+			<tr>
+				<% @maps.each do |map| -%>
+				<td class="columnLabel">
+					<a onclick="new Ajax.Updater('summary', '/stats/summary_filter?filter_type=map&filter_value=<%= map['name'].to_s.gsub(' ', '_')%>', {asynchronous:true, evalScripts:true, onFailure:function(request){alert('Oops, try again.');}}); return false;" href="#"><%= map['name'] %></a>
+				</td>
+				<% end -%>
+			</tr>
+		</table>
+	</fieldset>
+	
+	<fieldset>
+		<legend>Game Type</playlist>
+		
+		<%		
+		rows = []
+		for i in 1..6
+			rows << {:index => i, :items => []}
+		end
+		
+		i = 0
+		while ( i < @game_types.length )
+			rows.each do |row|
+				if ( !@game_types[i].nil? )
+					row[:items] << @game_types[i]
+				end
+				i = i + 1
+			end
+		end
+		
+		%>
+		<table style="width: 100%;">
+			<% rows.each do |row| -%>
+			<tr>
+				<% row[:items].each do |item| -%>
+				<td class="columnLabel">
+					<a id="filterPlaylist<%= item['name'].gsub(' ', '') %>Link" onclick="new Ajax.Updater('summary', '/stats/summary_filter?filter_type=game_type&filter_value=<%= item['name'].to_s.gsub(' ', '_')%>', {asynchronous:true, evalScripts:true, onFailure:function(request){alert('Oops, try again.');}}); return false;" href="#"><%= item['name'] %></a><span id="filterPlaylist<%= item['name'].gsub(' ', '') %>Span" style="display: none;"><%= item['name'] %></span><%= ' (R)' if ( item['ranked'].to_s == 'true' ) %>
+				</td>
+				<% end -%>
+			</tr>
+			<% end -%>
+		</table>
+	</fieldset>
+	
+	<fieldset>
+		<legend>Weapon</playlist>
+		
+		<%		
+		rows = []
+		for i in 1..12
+			rows << {:index => i, :items => []}
+		end
+		
+		i = 0
+		while ( i < @weapons.length )
+			rows.each do |row|
+				if ( !@weapons[i].nil? )
+					row[:items] << @weapons[i]
+				end
+				i = i + 1
+			end
+		end
+		
+		%>
+		<table style="width: 100%;">
+			<% rows.each do |row| -%>
+			<tr>
+				<% row[:items].each do |item| -%>
+				<td class="columnLabel">
+					<a onclick="new Ajax.Updater('summary', '/stats/summary_filter?filter_type=weapon&filter_value=<%= item['name'].to_s.gsub(' ', '_')%>', {asynchronous:true, evalScripts:true, onFailure:function(request){alert('Oops, try again.');}}); return false;" href="#"><%= item['name'] %></a>
+				</td>
+				<% end -%>
+			</tr>
+			<% end -%>
+		</table>
+	</fieldset>
+	<% end -%>
+</fieldset>
+
+<br />
+
+<%= render(:partial => 'stats/summary_data') %>

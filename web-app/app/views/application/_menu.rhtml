@@ -1,0 +1,27 @@
+<img src="/images/h3icon-small.gif" />
+
+<br />
+<br />
+
+<div id="menuTop">
+	<a href="http://code.google.com/p/halo3-stats-app/">Halo3 Stats App</a>&nbsp;<small>(V <%= APP_VERSION %>)</small>
+</div>
+
+<ul>
+	<% APP_MENU.each do |menu_group| -%>
+	<li class="menuHeader">
+		<div class="menuTitle">
+			<%= menu_group[:name] -%>
+		</div>
+		<ul>
+			<% menu_group[:links].each do |menu_item| -%>
+			<li class="menuItem">
+				<a href="<%= menu_item[:url] %>" class="menuItemLink">
+					<%= menu_item[:name] -%>
+				</a>
+			</li>
+			<% end -%>
+		</ul>
+	</li>
+	<% end -%>
+</ul>
