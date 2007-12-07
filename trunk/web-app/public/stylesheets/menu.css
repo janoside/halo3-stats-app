@@ -1,0 +1,9 @@
+.menuSectionHeader {background: #eeeeee; padding: 4px; padding-bottom: 0px; border: solid 1px #dddddd; height: 22px;}
+.menuSectionBody {padding-left: 20px; padding-top: 5px; padding-bottom: 5px; border: solid 1px #dddddd; border-top: none;}
+
+.menuGroupHeader {background: #eeeeee; padding: 2px; padding-bottom: 0px; border: solid 1px #dddddd; border-right: none;}
+.menuGroupBody {padding-left: 20px; padding-top: 5px; padding-bottom: 5px;}
+
+.menuFunctionItem {border-bottom: solid 1px #dddddd; padding: 2px;}
+
+.menuInputRegion {border: solid 1px #dddddd; border-top: none; background: #eef8ff; padding: 5px;}

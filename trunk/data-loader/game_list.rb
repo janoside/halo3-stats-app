@@ -8,7 +8,7 @@ BASE_PAGE_ID_URL = "http://www.bungie.net/stats/PlayerStatsHalo3.aspx?ctl00_main
 def get_game_ids(page, gamer_tag)
   begin
     # open-uri RDoc: http://stdlib.rubyonrails.org/libdoc/open-uri/rdoc/index.html
-    open(BASE_PAGE_ID_URL.gsub('XXX', page.to_s) + gamer_tag.to_s, "User-Agent" => "Ruby/#{RUBY_VERSION}") { |f|
+    open(BASE_PAGE_ID_URL.gsub('XXX', page.to_s) + gamer_tag.to_s.gsub(' ', '%20'), "User-Agent" => "Ruby/#{RUBY_VERSION}") { |f|
     
     # Save the response body
     @response = f.read

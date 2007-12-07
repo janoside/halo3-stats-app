@@ -1,0 +1,9 @@
+/*This is for IE only styles */
+
+body {behavior:url("/javascripts/csshover.htc");}
+
+div#header {margin-left: 1px;}
+div#feat_wrap, div#rating, div#popular ul li, .guide_info {height: 1%;}
+div.featcontent {height: 100px;}
+.keyword_feat {height: 50px;}
+div#footer {height: 40px;}

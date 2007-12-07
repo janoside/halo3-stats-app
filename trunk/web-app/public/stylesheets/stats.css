@@ -1,0 +1,205 @@
+/*----------------------------------------------
+ChaCha Guide Admin Stylesheet
+Media Type: Screen
+Last Updated: August 27th, 2006
+
+NOTE: If something doesn't work right in Internet Explorer, please consider the IE only stylesheet ie.css
+----------------------------------------------*/
+    body {text-align: center; background: #f4f4f4 url(/images/bg2.jpg) repeat; font-size: medium; font-size: 90%;}
+    #container {background: #fff; text-align:left; min-height: 730px; width: 1200px; margin: 20px auto; border: solid 1px #b6b6b6; padding: 10px;}
+
+    h2 {color: #d20001; font-size: 140%; padding-top: 20px; padding-bottom: 10px;}
+    h3 {color: #2062cf; font-size: 110%; padding-top: 10px; padding-bottom: 10px;}
+    h4 {padding-top: 10px;}
+    iframe {border: solid 1px #eee;}
+
+    .textLeft {text-align: left;}
+    .textCenter {text-align: center;}
+    .textRight {text-align: right;}
+    .floatRight {float: right;}
+    .floatLeft {float: left;}
+
+    .blue {color: #2062cf;}
+    
+    .field {padding: 15px; border: solid 1px #ddd;}
+
+
+/* Hover Box styles for ? mark symbols
+----------------------------------------------*/
+	.dvhdr1 {background:#eaf4ff;font-weight:bold;border:1px solid #3975b2;padding:5px;width:190px;color: #3975b2;}
+	.dvbdy1 {text-align: left;background:#fff; border-left:1px solid #3975b2;border-right:1px solid #3975b2;border-bottom:1px solid #3975b2;padding:5px;width:190px;color: #385a7c;}
+
+	.shade {background: #fffef4; border-top: solid 1px #f1ecc5; border-bottom: solid 1px #f1ecc5; padding: 5px; margin-top: 15px; margin-bottom: 15px;}
+
+
+/* Header styles
+----------------------------------------------*/
+	div#header {min-height: 300px; float: left; width: 175px;background: #fff; border-right: solid 1px #d1cfcf;}
+    	#logo {padding: 5px;}
+    	#nav {width: 175px; padding: 5px; border: solid 1px #ececec; min-height: 700px;}
+
+
+.pagination a:link, .pagination a:visited {padding: 1px 7px; border: solid 1px #ddd; margin-right: 3px;}
+
+
+.dataTable {border: solid 1px #777; padding: 4px; width: 100%;}
+	.dataTable td {padding: 5px;}
+	.dataTable .columnLabel {background: #aaa;}
+	.dataTable thead {border: solid 1px #777; padding: 0px;}
+	.dataTable .rowA {background: #dafaff;}
+	
+	a.sortButton:hover {background: #ccc; color: #000;}
+	a.sortButton:link, a.sortButton:visited {text-decoration: none; padding: 5px; display: block; font-weight: bold; color: #000;}
+	
+.lightBorder {border: solid 1px #eee;}
+.midBorder {border: solid 1px #aaa;}
+.darkBorder {border: solid 1px #555;}
+
+.pad {padding: 5px;}
+/*.fieldLegend {margin-left: 20px;}*/
+fieldset legend {margin-left: 20px; margin-top: 5px;}
+fieldset {border: solid 1px #b6b6b6; padding: 5px;}
+
+a:link, a:visited {color: #3535dd;}
+a:hover {color: #353580;}
+
+
+/* Misc & Error Styles
+----------------------------------------------*/
+
+.menu {font-size: 110%; padding: 1px; margin-bottom: 0px;}
+.top {font-size: 70%; text-align: right;margin-top: 15px; margin-bottom: 15px;}
+.hide {visibility: hidden;}
+.print {display: none;}
+
+
+
+/* Form error handling
+----------------------------------------------*/
+	.fieldWithErrors { padding: 2px;}
+	.errorExplanation {color: #d20001;} /*Text color for when an Error occurs in form handling */
+	.error, .notice {background: #fff4b6; color: #c60000; font-weight: bold;}
+    #site_error {padding: 15px 15px 15px 50px; border-top: solid 1px #4c4c4c;border-bottom: solid 2px #000; background: #373737 url(/images/warn.jpg) no-repeat 10px center; font-size: 80%; color: #fff; font-weight: bold;}
+    #divLoginError {color: #fff; font-weight: bold; padding: 3px; background: #c00000; margin-bottom: 10px;}
+
+/* Site Structure
+----------------------------------------------*/
+
+#login-wrap {width: 400px; margin-right: auto; margin-left: auto; margin-top: 100px; background: #fff; padding: 20px; border: solid 2px #2169ca;}
+    #login_tb { border-collapse: collapse; width: 100%;border: solid 1px #bfcee2; background: #f3f3f3; }
+        #login_tb td {padding: 5px; text-align: left;}
+        #login_tb td.right {text-align: right; color: #004ca9; font-weight: bold;}
+
+#maincontent {padding: 10px; width: 100%; text-align: left; min-height: 300px; font-size: 90%;}
+#pressTable {width: 100%;}
+.activeArticle {background: #fffcc8;}/*  */
+.articleListItem {background: #fffcc8; border: solid 1px #d9ce90; min-height: 60px; margin-top: 3px; margin-left: -1px;}/*  */
+.articleListItemInactive {background: #ffddc8; border: solid 1px #e87979; min-height: 60px; margin-top: 3px; margin-left: -1px;}/*  */
+.inactiveArticle {background: #ffddc8;}
+.yes {font-weight: bold; color: #40990a;}
+.no {font-weight: bold; color: #99180a;}
+
+    #w9Wrap {text-align: left;}
+        #w9Wrap table td {text-align: left;}
+
+     .internalPad {padding: 5px 15px 0px 15px;}
+    .stat_table {margin-bottom: 20px;}
+    .pad {}
+		.press_page table {border-collapse: collapse; width: 550px; font-size: 90%; background: #fff;}
+        .press_page thead {border-bottom: solid 1px #e2e0be;background: #f5f3db;}
+        .press_page th {font-weight: bold; padding: 3px 10px; background: #e9f3ff;}
+        .press_page td {padding: 3px 7px; vertical-align: top; width: 1%;}
+		
+		.press_article_fieldset {border: solid 1px #b9d4f3; padding: 8px;}
+		.press_page img {
+			max-width: 125px;
+			max-height: 50px;
+			width: expression(this.width > 125 ? 125: true);
+			height: expression(this.height > 50 ? 50: true);
+		}
+
+        .stat_table table {border-collapse: collapse; width: 550px; font-size: 90%; background: #fff; border: solid 1px #ddd; }
+        .stat_table thead {border-bottom: solid 1px #e2e0be;background: #f5f3db;}
+        .stat_table th {font-weight: bold; padding: 3px 10px; background: #e9f3ff; border: solid 1px #b9d4f3; }
+        .stat_table td {padding: 3px 7px;border: solid 1px #e6e6e6; vertical-align: top; width: 1%;}
+        label {}
+
+/*
+#maincontent a:link, #maincontent a:visited {color: #d20001;}
+    #maincontent .top a:link, #maincontent .top a:visited {padding: 2px 5px;color: #1650d2; text-decoration: none; display: block; border-bottom: solid 1px #f3f3f3;}
+    #maincontent .top a:hover {background: #f0f7ff;}
+    #maincontent .top a:hover .hide {visibility: visible;}
+    */
+
+#maincontent p {margin-top: 10px; margin-bottom: 10px;}
+
+.webproc_table {width: 200px; margin: 10px; float: left;}
+
+ #userbarWrap {font-size: 90%; margin-bottom: 20px;}
+            #userbarWrap #userbarSearch a:link, #userbarWrap #userbarSearch a:visited {color: #fff;}
+        #userbarSearch {color: #fff; background: #20689e url(/images/toolbar_bg.jpg) repeat-x top left; padding: 5px; border-bottom: solid 1px #105589;}
+            #userbarWrap label {font-size: 90%;}
+            #userbarWrap .toolbar {padding: 6px;}
+            #userList #userTable {margin-top: 10px; border-collapse: collapse; border: none; width: 694px; margin-bottom: 0px !important; font-size: 90%; background: none;}
+                #userList #userTable td {border: none; border-bottom: solid 1px #dcdcdc;}
+                #userList #userTable th {border: none; background: none; padding: 3px 7px;}
+            #userList tr:hover {background: #daefff; color: #0d60b5;}
+            #userList tr.nohover:hover {background: none !important; color: #000 !important;}
+                #userList #userTable tr:hover td {border-bottom: solid 1px #81b8f1;}
+        #advancedSearch {padding: 5px; background: #eef8ff; color: #20689e; border-bottom: solid 1px #a9cde9;}
+
+        #userList {background: #dadada url(/images/user_bg.jpg) repeat-x; border-bottom: solid 1px #b3b3b3; }
+        .paginate {margin-top: 10px; padding: 5px; font-size: 100%; font-weight: bold;}
+        #userbarWrap .auto_complete {color: #0367cd; font-size: 90%; background: #fff; overflow: hidden; border: solid 1px #3f8fcd;}
+        #userbarWrap .auto_complete ul {border: none;}
+        #userbarWrap .auto_complete li {background: #fff;}
+        #userbarWrap .auto_complete li.selected {background: #ddf3ff;}
+
+.invisTable td { border: 0; background: inherit; vertical-align: middle; }
+.invisTable table { border: 0; background: inherit; width: 90%; vertical-align: middle; }
+
+#newAssignment {padding: 5px; background: #eef8ff; color: #20689e; border-bottom: solid 1px #a9cde9; border-top: solid 1px #a9cde9; font-size: 90%}
+#newPermission {padding: 5px; background: #eef8ff; color: #20689e; border-bottom: solid 1px #a9cde9; border-top: solid 1px #a9cde9; font-size: 90%}
+#newMember {padding: 5px; background: #eef8ff; color: #20689e; border-bottom: solid 1px #a9cde9; border-top: solid 1px #a9cde9; font-size: 90%}
+.permissionList {padding: 10px; border: solid 1px #dddddd; height:500px; overflow: auto;}
+.inputRegion {padding: 5px; background: #eef8ff; color: #20689e; border-bottom: solid 1px #a9cde9; border-top: solid 1px #a9cde9; font-size: 90%}
+thead.security {background: #ffffff; border-bottom: solid 1px #dddddd;}
+table.security {width: 100%;}
+tbody.security {overflow-y: auto; overflow-x: hidden;}
+.errorMessage {color: #d20001; font-weight: bold;}
+.noticeMessage {color: #090;}
+
+        #userbarWrap .userID {width: 30px;}
+            #userbarWrap td.userID {text-align: right;}
+        #userbarWrap .handle {width: 120px;}
+        #userbarWrap .fName {width: 100px;}
+        #userbarWrap .lName {width: 100px;}
+        #userbarWrap .email {width: 200px;}
+        #userbarWrap .userType {width: 100px;}
+
+/*Guide De-activation styles*/
+.guide-ban-form {}
+.reason-code {float: left; width: 200px; padding-right: 15px;}
+.deactivation-type {float: left; padding-right: 7px;}
+#guide-ban-form-duration {width: 90px; float: left; padding-left: 10px;}
+    #guide-ban-form-duration input {width: 20px;}
+    .action {float: left; width: 180px; text-align: center;}
+#guide-deactivation .select_guide_table {width: 240px;}
+#guide-deactivation .earnings_table {width: 280px; margin-bottom: 20px;}
+
+.userStatus {float: right; position: relative; padding-top: 20px; padding-right: 20px;  text-align: center; width: 300px; font-size: 140%;}
+.statusDetails {font-size: 60%; text-align: left;}
+.statusMeta {color: #cd701d;}
+.guideDetails {width: 330px; margin-top: 20px;}
+
+#guide-deactivation .active {color: #79be00; font-weight: bold;}
+#guide-deactivation .inactive {color: #be3a00; font-weight: bold;}
+
+#guide-deactivation fieldset {padding: 10px; border: solid 1px #dcdcdc; margin-bottom: 20px;}
+#guide-deactivation legend {font-weight: bold; color: #e68302; padding: 0px 3px 3px 3px; font-size: 90%;}
+
+.userSubmit {padding: 10px; background: #f5f5f5; border: solid 1px #e4e4e4;}
+
+	/* Footer Styles
+	----------------------------------------------*/
+       #footer {padding: 5px; text-align: center; font-size: 80%;}
