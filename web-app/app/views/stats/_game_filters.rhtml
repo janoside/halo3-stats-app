@@ -1,0 +1,51 @@
+<div id="filterColumn">
+	<div style="border-bottom: solid 1px #ccc;">
+		<b>Filters</b>
+	</div>
+	<br />
+	<%=
+	    form_remote_tag(
+	        :url => {
+	            :controller => 'stats',
+	            :action     => 'summary_filter'
+	        },
+	        :update   => 'summary',
+	        :loading  => "document.getElementById('filterStatus').style.display='inline';",
+	        #:success  => update_content('status', :show => false),
+	        :complete => "document.getElementById('filterStatus').style.display='none';"
+	        #:failure  => "alert('Oops, try again.');"
+	    )
+	%>
+		Playlist
+		<br />
+		<%= select_tag('playlists[]', options_for_select(@playlist_options), {:multiple => true, :size => 8, :class => 'multiSelect'}) %>
+		<br />
+		<br />
+		Map
+		<br />
+		<%= select_tag('maps[]', options_for_select(@map_options), {:multiple => true, :size => 8, :class => 'multiSelect'}) %>
+		<br />
+		<br />
+		Game Type
+		<br />
+		<%= select_tag('game_types[]', options_for_select(@game_type_options), {:multiple => true, :size => 8, :class => 'multiSelect'}) %>
+		<br />
+		<br />
+		Start Date:
+		<br />
+		<input type="text" name="start_date">
+		<br />
+		End Date:
+		<br />
+		<input type="text" name="end_date">
+		
+		<br />
+		<br />
+		<div style="background: #efefef; border: solid 1px #ccc; padding: 2px;">
+			<input type="submit" value="Apply Filters" />
+			<div id="filterStatus" style="display: none;">
+				<img src="/images/indicator.gif" />
+			</div>
+		</div>
+	<%= end_form_tag -%>
+</div>

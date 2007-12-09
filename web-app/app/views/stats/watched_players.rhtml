@@ -20,13 +20,13 @@
         :failure  => "alert('Oops, try again.');"
     )
 %>
-<input type="text" name="gamer_tag" id="gamer_tag" />
-<input type="submit" value="Save" />
-<span id="status" class="loadingIndicator"></span>
+	<input type="text" name="gamer_tag" id="gamer_tag" />
+	<input type="submit" value="Save" />
+	<span id="status" class="loadingIndicator"></span>
 <%= end_form_tag -%>
 
 <br />
 
 <div id="watchedPlayers">
-<%= render(:partial => 'watched_players') %>
+	<%= render(:partial => 'watched_players') %>
 </div>
