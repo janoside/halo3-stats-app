@@ -11,6 +11,12 @@ body {font-family: arial, verdana, sans-serif; font-size: 85%;}
 
 #menuTop {background: solid 1px #ccc;}
 
+a.graphTypeLink:hover {background: #cbebff; color: #000;}
+a.graphTypeLink:link, a.graphTypeLink:visited {text-decoration: none; color: #000; display: block; padding: 1px 2px;}
+
+a.graphActiveLink:hover {background: #cbebff; color: #000;}
+a.graphActiveLink:link, a.graphActiveLink:visited {text-decoration: none; color: #000; display: block; padding: 1px 2px; background: #2465db; color: #fff;}
+
 p {padding: 5px;}
 .pList {margin-left: 15px;}
 
@@ -27,16 +33,23 @@ a:hover {color: #353580;}
 
 #loginForm {text-align: center; vertical-align: middle; margin-top: 200 px; margin-bottom: 200px;}
 
-.multiSelect {width: 225px;}
+.multiSelect {width: 100%;}
+#filterColumn {width: 175px;}
 
-.dataTable {border: solid 1px #777; padding: 3px; width: 100%;}
+#summary {padding: 10px;}
+
+.dataTable {border: solid 1px #777; padding: 3px;}
 	.dataTable td {padding: 4px;}
 	.dataTable .columnLabel {background: url(/images/pag_bg.jpg) repeat;}
 	.dataTable thead {border: solid 1px #777; padding: 0px;}
 	.dataTable .rowA {background: #cbebff;}
+	.dataTable .rowB {}
+	.dataCell {font-family: monospace; font-size: 125%; text-align: right;}
+
 
 a.sortButton:hover {background: #ccc; color: #000;}
-	a.sortButton:link, a.sortButton:visited {text-decoration: none; padding: 5px; display: block; font-weight: bold; color: #000;}
+	a.sortButton:link, a.sortButton:visited {text-decoration: none; display: block; font-weight: bold; color: #000;}
+
 
 /*
 
