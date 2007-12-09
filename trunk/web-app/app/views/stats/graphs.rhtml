@@ -1,5 +1,11 @@
 <script type="text/javascript">
-function startGraph() {
+activeGraph = '';
+function startGraph(name) {
+	if ( activeGraph != '' ) {
+		document.getElementById(activeGraph).className = 'graphTypeLink';
+	}
+	activeGraph = name;
+	document.getElementById(name).className = 'graphActiveLink';
 	document.getElementById('loadingStatus').style.display='';
 	document.getElementById('graph').style.display='none';
 }
@@ -9,64 +15,72 @@ function endGraph() {
 }
 </script>
 
-<fieldset>
-	<legend>Per Day Values:</legend>
-	<% index = 0 -%>
-	<% @per_day_values.each do |pd_value| -%>
-		<%=
-             link_to_remote(
-                 pd_value[:name].to_s, {
-                     :url => {
-                         :controller  => 'stats',
-                         :action      => 'render_graph',
-                         :data_type   => pd_value[:data_type]
-                     },
-                     :update => 'graph',
-                     :loading  => "startGraph();",
-                     :success  => "",
-                     :complete => "endGraph();",
-                     :failure  => "alert('Oops, try again.');"
-                 }
-             )
-         %>
+<div class="clearfix">
+	<div class="floatLeft" style="border-right: solid 1px #ccc; padding-right: 15px;">
+		<%= render(:partial => 'stats/game_filters') %>
+	</div>
 	
-	<%= '|' if ( index < (@per_day_values.length - 1) ) -%>
-	<% index = index + 1 -%>
-	<% end -%>
-</fieldset>
-
-<fieldset>
-	<legend>Totals vs. Time:</legend>
-	<% index = 0 -%>
-	<% @total_values.each do |pd_value| -%>
-		<%=
-             link_to_remote(
-                 pd_value[:name].to_s, {
-                     :url => {
-                         :controller  => 'stats',
-                         :action      => 'render_graph',
-                         :data_type   => pd_value[:data_type],
-                         :total => '1'
-                     },
-                     :update => 'graph',
-                     :loading  => "startGraph();",
-                     :success  => "",
-                     :complete => "endGraph();",
-                     :failure  => "alert('Oops, try again.');"
-                 }
-             )
-         %>
+	<div class="floatLeft" style="border-right: solid 1px #ccc; padding: 0px 15px;">
+		<div style="border-bottom: solid 1px #ccc;">
+			<b>Graph Types</b>
+		</div>
+		
+		<br />
+		
+		<ul>
+		<% @per_day_values.each do |pd_value| -%>
+			<li>
+			<%=
+	             link_to_remote(
+	                 pd_value[:name].to_s, {
+	                     :url => {
+	                         :controller  => 'stats',
+	                         :action      => 'render_graph',
+	                         :data_type   => pd_value[:data_type]
+	                     },
+	                     :update => 'graph',
+	                     :loading  => "startGraph('graph_#{pd_value[:data_type].to_s}');",
+	                     :success  => "",
+	                     :complete => "endGraph();",
+	                     :failure  => "alert('Oops, try again.');"
+	                 },
+	                 {:id => "graph_#{pd_value[:data_type]}", :class => 'graphTypeLink'}
+	             )
+	         %>
+	         </li>
+		<% end -%>
+		
+		<% @total_values.each do |pd_value| -%>
+			<li class="menuItem">
+			<%=
+	             link_to_remote(
+	                 pd_value[:name].to_s, {
+	                     :url => {
+	                         :controller  => 'stats',
+	                         :action      => 'render_graph',
+	                         :data_type   => pd_value[:data_type],
+	                         :total => '1'
+	                     },
+	                     :update => 'graph',
+	                     :loading  => "startGraph('graph_#{pd_value[:data_type].to_s}_total');",
+	                     :success  => "",
+	                     :complete => "endGraph();",
+	                     :failure  => "alert('Oops, try again.');"
+	                 },
+	                 {:id => "graph_#{pd_value[:data_type]}_total", :class => 'graphTypeLink'}
+	             )
+	         %>
+	        </li>
+		<% end -%>
+		</ul>
+	</div>
 	
-	<%= '|' if ( index < (@total_values.length - 1) ) -%>
-	<% index = index + 1 -%>
-	<% end -%>
-</fieldset>
-
-<div style="text-align: center; width: 100%;">
-<div id="loadingStatus" style="text-align: center; vertical-align: middle; display: none; margin-top: 200px; background: #ececec; border: solid 1px #ccc; padding: 30px; width: 200px; margin-left: 600px;">
-	<img src="/images/loading.gif" />
-	Generating Graph...
-</div>
-<div id="graph">
-</div>
+	<div class="floatLeft">
+		<div id="loadingStatus" style="text-align: center; vertical-align: middle; display: none; background: #ececec; border: solid 1px #ccc; padding: 30px; width: 200px; height: 50px; margin-left: 300px; margin-top: 150px;">
+			<img src="/images/loading.gif" />
+			Generating Graph...
+		</div>
+		<div id="graph">
+		</div>
+	</div>
 </div>

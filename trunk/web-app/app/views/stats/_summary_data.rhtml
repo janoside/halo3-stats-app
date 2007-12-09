@@ -1,92 +1,90 @@
-<div id="summary">
-	<%= "<b>Filtered By #{@filter_type.capitalize().gsub('_', ' ')}</b>: #{@filter_value}" if ( @filter_type ) -%>
-	<table class="dataTable">
-		<thead>
-		<tr>
-			<td class="columnLabel">
-				<a class="sortButton" onclick="new Ajax.Updater('summary', '/stats/summary_sort?sort_name=name', {asynchronous:true, evalScripts:true, onFailure:function(request){alert('Oops, try again.');}}); return false;" href="#">Player</a>
-			</td>
-			<td class="columnLabel">
-				<a class="sortButton" onclick="new Ajax.Updater('summary', '/stats/summary_sort?sort_name=games', {asynchronous:true, evalScripts:true, onFailure:function(request){alert('Oops, try again.');}}); return false;" href="#">Games</a>
-				<%
-	                link_to_remote(
-	                    "Games", {
-	                        :url => {
-	                            :controller  => 'stats',
-	                            :action      => 'summary_sort',
-	                            :sort_name   => 'Games'
-	                        },
-	                        :update => 'summary',
-	                        #:loading  => update_content("group_#{group.id}_status", :show => true, :content => loading_tag('')),
-	                        #:success  => update_content("group_#{group.id}_status", :show => false),
-	                        #:complete => visual_effect(:blind_down, :tab_content, :duration => '0.0'),
-	                        :failure  => "alert('Oops, try again.');"
-	                    }
-	                )
-	            %>
-			</td>
-			<td class="columnLabel">
-				<a class="sortButton" onclick="new Ajax.Updater('summary', '/stats/summary_sort?sort_name=kills', {asynchronous:true, evalScripts:true, onFailure:function(request){alert('Oops, try again.');}}); return false;" href="#">Kills</a>
-			</td>
-			<td class="columnLabel">
-				<a class="sortButton" onclick="new Ajax.Updater('summary', '/stats/summary_sort?sort_name=assists', {asynchronous:true, evalScripts:true, onFailure:function(request){alert('Oops, try again.');}}); return false;" href="#">Assists</a>
-			</td>
-			<td class="columnLabel">
-				<a class="sortButton" onclick="new Ajax.Updater('summary', '/stats/summary_sort?sort_name=deaths', {asynchronous:true, evalScripts:true, onFailure:function(request){alert('Oops, try again.');}}); return false;" href="#">Deaths</a>
-			</td>
-			<td class="columnLabel">
-				<a class="sortButton" onclick="new Ajax.Updater('summary', '/stats/summary_sort?sort_name=kd_ratio', {asynchronous:true, evalScripts:true, onFailure:function(request){alert('Oops, try again.');}}); return false;" href="#">K/D</a>
-			</td>
-			<td class="columnLabel">
-				<a class="sortButton" onclick="new Ajax.Updater('summary', '/stats/summary_sort?sort_name=reaper_ratio', {asynchronous:true, evalScripts:true, onFailure:function(request){alert('Oops, try again.');}}); return false;" href="#">Reaper</a>
-			</td>
-			<td class="columnLabel">
-				<a class="sortButton" onclick="new Ajax.Updater('summary', '/stats/summary_sort?sort_name=kill_per_game', {asynchronous:true, evalScripts:true, onFailure:function(request){alert('Oops, try again.');}}); return false;" href="#">Kill/Game</a>
-			</td>
-			<td class="columnLabel">
-				<a class="sortButton" onclick="new Ajax.Updater('summary', '/stats/summary_sort?sort_name=assist_per_game', {asynchronous:true, evalScripts:true, onFailure:function(request){alert('Oops, try again.');}}); return false;" href="#">Assist/Game</a>
-			</td>
-			<td class="columnLabel">
-				<a class="sortButton" onclick="new Ajax.Updater('summary', '/stats/summary_sort?sort_name=death_per_game', {asynchronous:true, evalScripts:true, onFailure:function(request){alert('Oops, try again.');}}); return false;" href="#">Death/Game</a>
-			</td>
-		</tr>
-		</thead>
-		
-		<% index = 0 %>
-		<% @players.each do |player| %>
-		<tr <%= "class='rowA'" if ( (index % 2) == 1 ) %>>
-			<td>
-				<%= player[:name] %>
-			</td>
-			<td>
-				<%= player[:games] %>
-			</td>
-			<td>
-				<%= player[:kills] %>
-			</td>
-			<td>
-				<%= player[:assists] %>
-			</td>
-			<td>
-				<%= player[:deaths] %>
-			</td>
-			<td>
-				<%= player[:kd_ratio] %>
-			</td>
-			<td>
-				<%= player[:reaper_ratio] %>
-			</td>
-			<td>
-				<%= player[:kill_per_game] %>
-			</td>
-			<td>
-				<%= player[:assist_per_game] %>
-			</td>
-			<td>
-				<%= player[:death_per_game] %>
-			</td>
-		</tr>
-		<% index = index + 1 %>
-		<% end -%>
-	</table>
-</div>
+<%= "<b>Filtered By #{@filter_type.capitalize().gsub('_', ' ')}</b>: #{@filter_value}" if ( @filter_type ) -%>
+<table class="dataTable">
+	<thead>
+	<tr>
+		<td class="columnLabel">
+			<a class="sortButton" onclick="new Ajax.Updater('summary', '/stats/summary_sort?sort_name=name', {asynchronous:true, evalScripts:true, onFailure:function(request){alert('Oops, try again.');}}); return false;" href="#">Player</a>
+		</td>
+		<td class="columnLabel">
+			<a class="sortButton" onclick="new Ajax.Updater('summary', '/stats/summary_sort?sort_name=games', {asynchronous:true, evalScripts:true, onFailure:function(request){alert('Oops, try again.');}}); return false;" href="#">Games</a>
+			<%
+                link_to_remote(
+                    "Games", {
+                        :url => {
+                            :controller  => 'stats',
+                            :action      => 'summary_sort',
+                            :sort_name   => 'Games'
+                        },
+                        :update => 'summary',
+                        #:loading  => update_content("group_#{group.id}_status", :show => true, :content => loading_tag('')),
+                        #:success  => update_content("group_#{group.id}_status", :show => false),
+                        #:complete => visual_effect(:blind_down, :tab_content, :duration => '0.0'),
+                        :failure  => "alert('Oops, try again.');"
+                    }
+                )
+            %>
+		</td>
+		<td class="columnLabel">
+			<a class="sortButton" onclick="new Ajax.Updater('summary', '/stats/summary_sort?sort_name=kills', {asynchronous:true, evalScripts:true, onFailure:function(request){alert('Oops, try again.');}}); return false;" href="#">Kills</a>
+		</td>
+		<td class="columnLabel">
+			<a class="sortButton" onclick="new Ajax.Updater('summary', '/stats/summary_sort?sort_name=assists', {asynchronous:true, evalScripts:true, onFailure:function(request){alert('Oops, try again.');}}); return false;" href="#">Assists</a>
+		</td>
+		<td class="columnLabel">
+			<a class="sortButton" onclick="new Ajax.Updater('summary', '/stats/summary_sort?sort_name=deaths', {asynchronous:true, evalScripts:true, onFailure:function(request){alert('Oops, try again.');}}); return false;" href="#">Deaths</a>
+		</td>
+		<td class="columnLabel">
+			<a class="sortButton" onclick="new Ajax.Updater('summary', '/stats/summary_sort?sort_name=kd_ratio', {asynchronous:true, evalScripts:true, onFailure:function(request){alert('Oops, try again.');}}); return false;" href="#">K/D</a>
+		</td>
+		<td class="columnLabel">
+			<a class="sortButton" onclick="new Ajax.Updater('summary', '/stats/summary_sort?sort_name=reaper_ratio', {asynchronous:true, evalScripts:true, onFailure:function(request){alert('Oops, try again.');}}); return false;" href="#">Reaper</a>
+		</td>
+		<td class="columnLabel">
+			<a class="sortButton" onclick="new Ajax.Updater('summary', '/stats/summary_sort?sort_name=kill_per_game', {asynchronous:true, evalScripts:true, onFailure:function(request){alert('Oops, try again.');}}); return false;" href="#">Kill/Game</a>
+		</td>
+		<td class="columnLabel">
+			<a class="sortButton" onclick="new Ajax.Updater('summary', '/stats/summary_sort?sort_name=assist_per_game', {asynchronous:true, evalScripts:true, onFailure:function(request){alert('Oops, try again.');}}); return false;" href="#">Assist/Game</a>
+		</td>
+		<td class="columnLabel">
+			<a class="sortButton" onclick="new Ajax.Updater('summary', '/stats/summary_sort?sort_name=death_per_game', {asynchronous:true, evalScripts:true, onFailure:function(request){alert('Oops, try again.');}}); return false;" href="#">Death/Game</a>
+		</td>
+	</tr>
+	</thead>
+	
+	<% index = 0 %>
+	<% @players.each do |player| %>
+	<tr <%= (((index % 2) == 1) ? "class='rowA'" : "class='rowB'") %>>
+		<td>
+			<%= player[:name] %>
+		</td>
+		<td class="dataCell">
+			<%= player[:games] %>
+		</td>
+		<td class="dataCell">
+			<%= player[:kills] %>
+		</td>
+		<td class="dataCell">
+			<%= player[:assists] %>
+		</td>
+		<td class="dataCell">
+			<%= player[:deaths] %>
+		</td>
+		<td class="dataCell">
+			<%= player[:kd_ratio] %>
+		</td>
+		<td class="dataCell">
+			<%= player[:reaper_ratio] %>
+		</td>
+		<td class="dataCell">
+			<%= player[:kill_per_game] %>
+		</td>
+		<td class="dataCell">
+			<%= player[:assist_per_game] %>
+		</td>
+		<td class="dataCell">
+			<%= player[:death_per_game] %>
+		</td>
+	</tr>
+	<% index = index + 1 %>
+	<% end -%>
+</table>
