@@ -1,6 +1,6 @@
 class Player < ActiveRecord::Base
 
-  def Player.get_summary_data(name, filters)
+  def Player.get_summary_data(name, filters, start_date, end_date)
     puts filters.inspect
     
     player = Player.find_by_name(name)
@@ -12,22 +12,46 @@ class Player < ActiveRecord::Base
       map_names = []
       game_type_names = []
       
-      playlist_ids = Player.connection.select_all("select id from playlists where name in (#{Utility.list()})")
-      playlist_sql = 'g.playlist_id in ()'
-      filter = filters[0]
-      if ( filter[:filter_type] == 'playlist' )
-        playlist_name = filter[:filter_value].gsub('_', ' ')
-        results = Player.connection.select_all("select count(pg.id) as games, sum(pg.kills) as kills, sum(pg.assists) as assists, sum(pg.deaths) as deaths from games g, player_games pg where g.id=pg.game_id and pg.player_id=#{player.id} and g.playlist_id=(select id from playlists where name='#{playlist_name}')")
-      elsif ( filter[:filter_type] == 'map' )
-        map_name = filter[:filter_value].gsub('_', ' ')
-        results = Player.connection.select_all("select count(pg.id) as games, sum(pg.kills) as kills, sum(pg.assists) as assists, sum(pg.deaths) as deaths from games g, player_games pg where g.id=pg.game_id and pg.player_id=#{player.id} and g.map_id=(select id from maps where name='#{map_name}')")
-      elsif ( filter[:filter_type] == 'weapon' )
-        weapon_name = filter[:filter_value].gsub('_', ' ')
-        results = Player.connection.select_all("select count(*) as games, sum(count) as kills from player_game_weapon_kills where player_game_id in (select id from player_games where player_id=#{player.id}) and weapon_id=(select id from weapons where name='#{weapon_name}') group by weapon_id;")
-      elsif ( filter[:filter_type] == 'game_type' )
-        game_type_name = filter[:filter_value].gsub('_', ' ')
-        results = Player.connection.select_all("select count(pg.id) as games, sum(pg.kills) as kills, sum(pg.assists) as assists, sum(pg.deaths) as deaths from games g, player_games pg where g.id=pg.game_id and pg.player_id=#{player.id} and g.game_type_id=(select id from game_types where name='#{game_type_name}')")
+      playlist_sql = ''
+      map_sql = ''
+      game_type_sql = ''
+      
+      puts filters.inspect
+      
+      sql_parts = []
+      if ( filters[:playlists].length > 0 && filters[:playlists][0] != 0 && filters[:playlists][0] != -1 )
+        playlist_sql = "g.playlist_id in (#{Utility.list(filters[:playlists], ',')})"
+        sql_parts << playlist_sql
       end
+      
+      if ( filters[:maps].length > 0 && filters[:maps][0] != 0 && filters[:maps][0] != -1 )
+        map_sql = "g.map_id in (#{Utility.list(filters[:maps], ',')})"
+        sql_parts << map_sql
+      end
+      
+      if ( filters[:game_types].length > 0 && filters[:game_types][0] != 0 && filters[:game_types][0] != -1 )
+        game_type_sql = "g.game_type_id in (#{Utility.list(filters[:game_types], ',')})"
+        sql_parts << game_type_sql
+      end
+      
+      if ( start_date.length > 0 )
+        sql_parts << "g.date > '#{start_date.to_s}'"
+      end
+      
+      if ( end_date.length > 0 )
+        sql_parts << "g.date < '#{end_date.to_s}'"
+      end
+      
+      where_clause = Utility.list(sql_parts, ' and ')
+      if ( where_clause.length > 0 )
+        where_clause = ' and ' + where_clause
+      end
+      
+      sql = "select count(pg.id) as games, sum(pg.kills) as kills, sum(pg.assists) as assists, sum(pg.deaths) as deaths from games g, player_games pg where g.id=pg.game_id and pg.player_id=#{player.id} #{where_clause}" 
+      
+      puts sql.to_s
+      
+      results = Player.connection.select_all(sql)
     end
     
     data = {:name => name}
@@ -39,19 +63,19 @@ class Player < ActiveRecord::Base
       data[:games] = results[0]['games'].to_i
       
       data[:kd_ratio] = (data[:kills] / (1.0 * data[:deaths])).to_s
-      data[:kd_ratio] = data[:kd_ratio][0, 6].to_f
+      data[:kd_ratio] = Utility.to_float(data[:kd_ratio], 5)
       
       data[:kill_per_game] = (data[:kills] / (1.0 * data[:games])).to_s
-      data[:kill_per_game] = data[:kill_per_game][0, 6].to_f
+      data[:kill_per_game] = Utility.to_float(data[:kill_per_game], 5)
       
       data[:assist_per_game] = (data[:assists] / (1.0 * data[:games])).to_s
-      data[:assist_per_game] = data[:assist_per_game][0, 6].to_f
+      data[:assist_per_game] = Utility.to_float(data[:assist_per_game], 5)
       
       data[:death_per_game] = (data[:deaths] / (1.0 * data[:games])).to_s
-      data[:death_per_game] = data[:death_per_game][0, 6].to_f
+      data[:death_per_game] = Utility.to_float(data[:death_per_game], 5)
       
       data[:reaper_ratio] = ((data[:kills] + data[:assists]) / (1.0 * data[:deaths])).to_s
-      data[:reaper_ratio] = data[:reaper_ratio][0, 6].to_f
+      data[:reaper_ratio] = Utility.to_float(data[:reaper_ratio], 5)
     end
     
     return data
@@ -101,14 +125,40 @@ class Player < ActiveRecord::Base
         :kd => result['kd'].to_f,
         :reaper => result['reaper'].to_f
       }
-      data_set[:kpg] = Utility.to_float(1.0 * data_set[:kills] / data_set[:games], 6)
-      data_set[:apg] = Utility.to_float(1.0 * data_set[:assists] / data_set[:games], 6)
-      data_set[:dpg] = Utility.to_float(1.0 * data_set[:deaths] / data_set[:games], 6)
+      data_set[:kpg] = Utility.to_float(1.0 * data_set[:kills] / data_set[:games], 5)
+      data_set[:apg] = Utility.to_float(1.0 * data_set[:assists] / data_set[:games], 5)
+      data_set[:dpg] = Utility.to_float(1.0 * data_set[:deaths] / data_set[:games], 5)
       
       data[:data] << data_set
       
       doy = doy + 1
       first_result = false
+    end
+    
+    return data
+  end
+  
+  def Player.get_all_game_data(name)
+    player = Player.find_by_name(name)
+    
+    results = Player.connection.select_all("select g.id as game_id, dayofyear(g.date) as doy, g.date as date, pg.kills as kills, pg.assists as assists, pg.deaths as deaths, (pg.kills / pg.deaths) as kd, ((pg.kills+pg.assists)/pg.deaths) as reaper, 1 as games from player_games pg, games g where pg.game_id=g.id and pg.player_id=#{player.id}")
+    
+    data = {:name => name, :data => []}
+    
+    results.each do |result|
+      data_set = {
+        :game_id => result['game_id'].to_i,
+        :date => result['date'],
+        :doy => result['doy'].to_i,
+        :kills => result['kills'].to_i,
+        :assists => result['assists'].to_i,
+        :deaths => result['deaths'].to_i,
+        :games => result['games'].to_i,
+        :kd => result['kd'].to_f,
+        :reaper => result['reaper'].to_f
+      }
+      
+      data[:data] << data_set
     end
     
     return data

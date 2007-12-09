@@ -57,26 +57,16 @@ class StatsController < ApplicationController
   def summary()
     @players = []
     session[:visible_players].each do |watched_player|
-      @players << Player.get_summary_data(watched_player['player_name'], [])
+      @players << Player.get_summary_data(watched_player['player_name'], [], '', '')
     end
     
-    @playlists = Playlist.find(:all)
-    @playlists.sort!{|a, b| a['name'].downcase() <=> b['name'].downcase()}
-    
-    @maps = Map.find(:all)
-    @maps.sort!{|a, b| a['name'].downcase() <=> b['name'].downcase()}
-    
-    @weapons = Weapon.find(:all)
-    @weapons.sort!{|a, b| a['name'].downcase() <=> b['name'].downcase()}
-    
-    @game_types = GameType.find(:all)
-    @game_types.sort!{|a, b| a['name'].downcase() <=> b['name'].downcase()}
+    load_filters()
   end
   
   def summary_sort()
     @players = []
     session[:visible_players].each do |watched_player|
-      @players << Player.get_summary_data(watched_player['player_name'], [])
+      @players << Player.get_summary_data(watched_player['player_name'], [], '', '')
     end
     
     if ( params[:sort_name] == 'name' )
@@ -85,17 +75,29 @@ class StatsController < ApplicationController
       @players.sort!{|a, b| b[params[:sort_name].to_sym] <=> a[params[:sort_name].to_sym]}
     end
     
-    render(:template => 'stats/summary', :layout => false)
+    render(:partial => 'stats/summary_data', :layout => false)
   end
   
   def summary_filter()
-    @players = []
-    session[:visible_players].each do |watched_player|
-      @players << Player.get_summary_data(watched_player['player_name'], [{:filter_type => params[:filter_type], :filter_value => params[:filter_value]}])
+    @filters = {:playlists => [], :maps => [], :game_types => []}
+    
+    params[:playlists].each do |playlist_id|
+      @filters[:playlists] << playlist_id.to_i
+    end
+    params[:maps].each do |map_id|
+      @filters[:maps] << map_id.to_i
+    end
+    params[:game_types].each do |game_type_id|
+      @filters[:game_types] << game_type_id.to_i
     end
     
-    @filter_type = params[:filter_type]
-    @filter_value = params[:filter_value].to_s.gsub('_', ' ')
+    @start_date = params[:start_date]
+    @end_date = params[:end_date]
+  
+    @players = []
+    session[:visible_players].each do |watched_player|
+      @players << Player.get_summary_data(watched_player['player_name'], @filters, @start_date, @end_date)
+    end
     
     render(:partial => 'stats/summary_data', :layout => false)
     #render(:text => params.inspect, :layout => false)
@@ -212,26 +214,22 @@ class StatsController < ApplicationController
   end
   
   def graphs()
+    load_filters()
+    
     @per_day_values = [
-      {:data_type => 'games', :name => 'Games'},
-      {:data_type => 'kpg', :name => 'Kills/Game'},
-      {:data_type => 'dpg', :name => 'Death/Game'},
-      {:data_type => 'kills', :name => 'Kills'},
-      {:data_type => 'assists', :name => 'Assists'},
-      {:data_type => 'deaths', :name => 'Deaths'},
-      {:data_type => 'kd', :name => 'KD Ratio'},
-      {:data_type => 'reaper', :name => 'Reaper'}
+      {:data_type => 'kills', :name => 'Kill/Game'},
+      {:data_type => 'assists', :name => 'Assist/Game'},
+      {:data_type => 'deaths', :name => 'Death/Game'},
+      {:data_type => 'kd', :name => 'KD Ratio/Game'},
+      {:data_type => 'reaper', :name => 'Reaper/Game'}
       ]
       
     @total_values = [
-      {:data_type => 'games', :name => 'Games'},
-      {:data_type => 'kpg', :name => 'Kills/Game'},
-      {:data_type => 'dpg', :name => 'Death/Game'},
-      {:data_type => 'kills', :name => 'Kills'},
-      {:data_type => 'assists', :name => 'Assists'},
-      {:data_type => 'deaths', :name => 'Deaths'},
-      {:data_type => 'kd', :name => 'KD Ratio'},
-      {:data_type => 'reaper', :name => 'Reaper'}
+      {:data_type => 'kills', :name => 'Total Kills'},
+      {:data_type => 'assists', :name => 'Total Assists'},
+      {:data_type => 'deaths', :name => 'Total Deaths'},
+      {:data_type => 'kd', :name => 'Total KD Ratio'},
+      {:data_type => 'reaper', :name => 'Total Reaper'}
     ]
   end
   
@@ -252,13 +250,13 @@ class StatsController < ApplicationController
     
     pdata = {}
     players.each do |player|
-      pdata[player.id] = Player.get_per_day_data(player.name)
+      pdata[player.id] = Player.get_all_game_data(player.name)
     end
     
     min_doy = 1000
     players.each do |player|
-      puts "----------------------"
-      puts pdata[player.id].inspect
+      #puts "----------------------"
+      #puts pdata[player.id].inspect
       if ( pdata[player.id][:data][0][:doy] < min_doy )
         min_doy = pdata[player.id][:data][0][:doy]
       end
@@ -273,16 +271,13 @@ class StatsController < ApplicationController
           :deaths => 0,
           :games => 0,
           :kd => 0,
-          :reaper => 0,
-          :kpg => 0,
-          :apg => 0,
-          :dpg => 0
+          :reaper => 0
         })
       end
       
       data = pdata[player.id]#dataPlayer.get_per_day_data(player.name)
       
-      puts data.inspect
+      #puts data.inspect
       
       data_points = []
       
@@ -301,11 +296,43 @@ class StatsController < ApplicationController
       g.data(player.name, data_points)
     end
     
-    g.labels = {0 => '9-25', 30 => '10-25', 61 => '11-25'}
-    
     guid = ApplicationController.GUID
     
     g.write("public/images/graphs/#{guid}.png")
     render(:text => "<img src=\"/images/graphs/#{guid}.png\"")
+  rescue Exception => e
+    puts e.backtrace
+  end
+  
+  private
+  
+  def load_filters()
+    @playlists = Playlist.find(:all)
+    @playlists.sort!{|a, b| a['name'].downcase() <=> b['name'].downcase()}
+    @playlists.each do |playlist|
+      playlist['name'] = (playlist['name'] + ' (R)') if ( playlist['ranked'].to_s == 'true' )
+    end
+    
+    @maps = Map.find(:all)
+    @maps.sort!{|a, b| a['name'].downcase() <=> b['name'].downcase()}
+    
+    @game_types = GameType.find(:all)
+    @game_types.sort!{|a, b| a['name'].downcase() <=> b['name'].downcase()}
+    
+    @playlist_options = [['All', -1]]
+    @map_options = [['All', -1]]
+    @game_type_options = [['All', -1]]
+    
+    @playlists.each do |playlist|
+      @playlist_options << [playlist['name'], playlist['id']]
+    end
+    
+    @maps.each do |map|
+      @map_options << [map['name'], map['id']]
+    end
+    
+    @game_types.each do |game_type|
+      @game_type_options << [game_type['name'], game_type['id']]
+    end
   end
 end
