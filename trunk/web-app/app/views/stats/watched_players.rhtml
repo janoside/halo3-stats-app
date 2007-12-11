@@ -16,7 +16,7 @@
         :update   => 'watchedPlayers',
         :loading  => update_content('status', :show => true, :content => loading_tag('Saving')),
         :success  => update_content('status', :show => false),
-        :complete => visual_effect(:blind_down, :userList, :duration => '0.0'),
+        :complete => "document.getElementById('gamer_tag').value = '';",
         :failure  => "alert('Oops, try again.');"
     )
 %>

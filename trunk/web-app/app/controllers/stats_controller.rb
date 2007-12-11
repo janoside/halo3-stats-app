@@ -44,7 +44,7 @@ class StatsController < ApplicationController
     user_player = UserPlayer.find_by_user_id_and_player_id(session[:user_id], player.id)
     
     if ( !user_player.nil? )
-      user_player.active = params[:active].to_i
+      user_player.visible = params[:active].to_i
       user_player.save()
     end
     
@@ -57,7 +57,7 @@ class StatsController < ApplicationController
   def summary()
     @players = []
     session[:visible_players].each do |watched_player|
-      @players << Player.get_summary_data(watched_player['player_name'], [], '', '')
+      @players << Player.get_summary_data(watched_player['player_name'], [])
     end
     
     load_filters()
@@ -66,7 +66,7 @@ class StatsController < ApplicationController
   def summary_sort()
     @players = []
     session[:visible_players].each do |watched_player|
-      @players << Player.get_summary_data(watched_player['player_name'], [], '', '')
+      @players << Player.get_summary_data(watched_player['player_name'], [])
     end
     
     if ( params[:sort_name] == 'name' )
@@ -78,29 +78,44 @@ class StatsController < ApplicationController
     render(:partial => 'stats/summary_data', :layout => false)
   end
   
-  def summary_filter()
+  def apply_filters()
     @filters = {:playlists => [], :maps => [], :game_types => []}
     
-    params[:playlists].each do |playlist_id|
-      @filters[:playlists] << playlist_id.to_i
-    end
-    params[:maps].each do |map_id|
-      @filters[:maps] << map_id.to_i
-    end
-    params[:game_types].each do |game_type_id|
-      @filters[:game_types] << game_type_id.to_i
+    if ( !params[:playlists].nil? )
+      params[:playlists].each do |playlist_id|
+        @filters[:playlists] << playlist_id.to_i
+      end
     end
     
-    @start_date = params[:start_date]
-    @end_date = params[:end_date]
+    if ( !params[:maps].nil? )
+      params[:maps].each do |map_id|
+        @filters[:maps] << map_id.to_i
+      end
+    end
+    
+    if ( !params[:game_types].nil? )
+      params[:game_types].each do |game_type_id|
+        @filters[:game_types] << game_type_id.to_i
+      end
+    end
+    
+    @filters[:start_date] = params[:start_date]
+    @filters[:end_date] = params[:end_date]
+    
+    session[:filters] = @filters
+    
+    puts "SET FILTERS: #{session[:filters].inspect}"
+  end
+  
+  def summary_filter()
+    apply_filters()
   
     @players = []
     session[:visible_players].each do |watched_player|
-      @players << Player.get_summary_data(watched_player['player_name'], @filters, @start_date, @end_date)
+      @players << Player.get_summary_data(watched_player['player_name'], @filters)
     end
     
     render(:partial => 'stats/summary_data', :layout => false)
-    #render(:text => params.inspect, :layout => false)
   end
   
   def update_watched_players()
@@ -148,72 +163,32 @@ class StatsController < ApplicationController
     send_data(g.to_blob, :disposition => 'inline', :type => 'image/png', :filename => "site-stats.png")
   end
   
-  def fruit
-    g = Gruff::Line.new('1700x700')
-    g.title = "Kills / Week"
-    
-    #g.theme_rails_keynote()
-    
-    g.data("Apples", [1, 2, 3, 4, 4, 3])
-    g.data("Oranges", [4, 8, 7, 9, 8, 9])
-    g.data("Watermelon", [2, 3, 1, 5, 6, 8])
-    g.data("Peaches", [9, 9, 10, 8, 7, 9])
-    
-    g.labels = {0 => '2003', 2 => '2004', 4 => '2005'}
-    
-    send_data(g.to_blob, :disposition => 'inline', :type => 'image/png', :filename => "fruit.png")
-  end
-  
-  def haha()
-    players = Player.find_by_sql("select * from players where id in (select player_id from user_players where user_id=#{session[:user_id]})")
-    
-    g = Gruff::Line.new
-    g.theme = {
-      :colors => ['#ff6600', '#3bb000', '#1e90ff', '#efba00', '#0aaafd'],
-      :marker_color => '#aaa',
-      :background_colors => ['#fff', '#fff']
-    }
-    g.title_font_size=12
-    g.legend_font_size=12
-    g.marker_font_size=12
-    g.hide_dots = true
-    g.title = "Daily Totals"
-    
-    players.each do |player|
-      data = Player.get_per_day_data(player.name)
-      
-      kills = []
-      assists = []
-      deaths = []
-      kds = []
-      reapers = []
-      
-      data[:data].each do |dat|
-        kills << dat[:kills]
-        assists << dat[:assists]
-        deaths << dat[:deaths]
-        kds << dat[:kd]
-        reapers << dat[:reaper]
-      end
-      
-      g.data(player.name, kds)
-    end
-    
-    
-#    g.data("Kills", kills)
-#    g.data("Assists", assists)
-#    g.data("Deaths", deaths)
-    
-    #g.data("Kill/Death", kds)
-    #g.data("Reaper Ratio", reapers)
-    
-    g.labels = {0 => '2003', 2 => '2004', 4 => '2005'}
-    
-    g.write('public/images/haha2.png')
-    #send_data(g.to_blob, :disposition => 'inline', :type => 'image/png', :filename => "kd_ratios.png")
-  end
-  
   def graphs()
+    session[:graphs] = {}
+    load_filters()
+    
+    @per_day_values = [
+      {:data_type => 'kills', :name => 'Kill/Game'},
+      {:data_type => 'assists', :name => 'Assist/Game'},
+      {:data_type => 'deaths', :name => 'Death/Game'},
+      {:data_type => 'kd', :name => 'KD Ratio/Game'},
+      {:data_type => 'reaper', :name => 'Reaper/Game'}
+      ]
+      
+    @total_values = [
+      {:data_type => 'kills', :name => 'Total Kills'},
+      {:data_type => 'assists', :name => 'Total Assists'},
+      {:data_type => 'deaths', :name => 'Total Deaths'},
+      {:data_type => 'kd', :name => 'Total KD Ratio'},
+      {:data_type => 'reaper', :name => 'Total Reaper'}
+    ]
+    
+    @graph_action = 'render_graph'
+  end
+  
+  def compare()
+    Player.get_comparison_data('jan0side', 'meesturbo', session[:filters])
+    
     load_filters()
     
     @per_day_values = [
@@ -233,8 +208,40 @@ class StatsController < ApplicationController
     ]
   end
   
-  def render_graph()
-    players = Player.find_by_sql("select * from players where id in (select player_id from user_players where user_id=#{session[:user_id]} and active=1)")
+  def set_compared_players()
+    load_filters()
+    
+    @per_day_values = [
+      {:data_type => 'kills', :name => 'Kill/Game'},
+      {:data_type => 'assists', :name => 'Assist/Game'},
+      {:data_type => 'deaths', :name => 'Death/Game'},
+      {:data_type => 'kd', :name => 'KD Ratio/Game'},
+      {:data_type => 'reaper', :name => 'Reaper/Game'}
+      ]
+      
+    @total_values = [
+      {:data_type => 'kills', :name => 'Total Kills'},
+      {:data_type => 'assists', :name => 'Total Assists'},
+      {:data_type => 'deaths', :name => 'Total Deaths'},
+      {:data_type => 'kd', :name => 'Total KD Ratio'},
+      {:data_type => 'reaper', :name => 'Total Reaper'}
+    ]
+    
+    p1 = Player.find_by_name(params[:player1])
+    p2 = Player.find_by_name(params[:player2])
+    
+    @p1 = p1.id
+    @p2 = p2.id
+    
+    @graph_action = 'render_comparison'
+    
+    render(:template => 'stats/graphs', :layout => false)
+  end
+  
+  def render_comparison()
+    #apply_filters()
+    
+    players = Player.find_by_sql("select * from players where id in (#{Utility.list([params[:p1].to_i, params[:p2].to_i], ',')})")
     
     g = Gruff::Line.new('800x500')
     g.theme = {
@@ -248,60 +255,94 @@ class StatsController < ApplicationController
     g.hide_dots = true
     #g.title = "Daily Totals"
     
-    pdata = {}
-    players.each do |player|
-      pdata[player.id] = Player.get_all_game_data(player.name)
+    data = Player.get_comparison_data(players[0].name, players[1].name, session[:filters])
+      
+    data_points = []
+    
+    if ( params[:total].to_s == '1' )
+      total = 0
+      data.each do |key, dat|
+        total = total + dat[params[:data_type].to_sym]
+        data_points << total
+      end
+    else
+      data.each do |key, dat|
+        data_points << dat[params[:data_type].to_sym]
+      end
     end
     
-    min_doy = 1000
-    players.each do |player|
-      #puts "----------------------"
-      #puts pdata[player.id].inspect
-      if ( pdata[player.id][:data][0][:doy] < min_doy )
-        min_doy = pdata[player.id][:data][0][:doy]
-      end
-    end
-    players.each do |player|
-      end_doy = pdata[player.id][:data][0][:doy]
-      for i in min_doy..end_doy
-        pdata[player.id][:data].insert(0, {
-          :doy => i,
-          :kills => 0,
-          :assists => 0,
-          :deaths => 0,
-          :games => 0,
-          :kd => 0,
-          :reaper => 0
-        })
-      end
-      
-      data = pdata[player.id]#dataPlayer.get_per_day_data(player.name)
-      
-      #puts data.inspect
-      
-      data_points = []
-      
-      if ( params[:total].to_s == '1' )
-        total = 0
-        data[:data].each do |dat|
-          total = total + dat[params[:data_type].to_sym]
-          data_points << total
-        end
-      else
-        data[:data].each do |dat|
-          data_points << dat[params[:data_type].to_sym]
-        end
-      end
-      
-      g.data(player.name, data_points)
-    end
+    g.data("#{players[0].name} / #{players[1].name}", data_points)
+    
+    g.maximum_value = 2
+    g.minimum_value = -2
     
     guid = ApplicationController.GUID
     
     g.write("public/images/graphs/#{guid}.png")
+    
     render(:text => "<img src=\"/images/graphs/#{guid}.png\"")
-  rescue Exception => e
-    puts e.backtrace
+  end
+  
+  def render_graph()
+    session[:graphs] ||= {}
+    
+    graph_name = params[:data_type].to_s
+    if ( params[:total].to_s == '1' )
+      graph_name = graph_name + '_total'
+    end
+    
+    if ( session[:graphs][graph_name].nil? )
+      #apply_filters()
+      
+      players = Player.find_by_sql("select * from players where id in (select player_id from user_players where user_id=#{session[:user_id]} and visible=1)")
+      
+      g = Gruff::Line.new('800x500')
+      g.theme = {
+        :colors => ['#ff6600', '#3bb000', '#1e90ff', '#efba00', '#0aaafd'],
+        :marker_color => '#aaa',
+        :background_colors => ['#fff', '#fff']
+      }
+      g.title_font_size=12
+      g.legend_font_size=12
+      g.marker_font_size=12
+      g.hide_dots = true
+      #g.title = "Daily Totals"
+      
+      pdata = {}
+      players.each do |player|
+        pdata[player.id] = Player.get_all_game_data(player.name, session[:filters])
+      end
+      
+      players.each do |player|
+        data = pdata[player.id]#dataPlayer.get_per_day_data(player.name)
+        
+        data_points = []
+        
+        if ( params[:total].to_s == '1' )
+          total = 0
+          data[:data].each do |dat|
+            total = total + dat[params[:data_type].to_sym]
+            data_points << total
+          end
+        else
+          data[:data].each do |dat|
+            data_points << dat[params[:data_type].to_sym]
+          end
+        end
+        
+        g.data(player.name, data_points)
+      end
+      
+      guid = ApplicationController.GUID
+      
+      session[:graphs][graph_name] = guid
+      
+      g.write("public/images/graphs/#{session[:graphs][graph_name]}.png")
+    else
+      guid = session[:graphs][graph_name]
+    end    
+    
+    render(:text => "<img src=\"/images/graphs/#{guid}.png\"")
   end
   
   private

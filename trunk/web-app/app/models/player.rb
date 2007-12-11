@@ -1,25 +1,18 @@
 class Player < ActiveRecord::Base
 
-  def Player.get_summary_data(name, filters, start_date, end_date)
-    puts filters.inspect
+  def Player.filter_where_clause(filters)
+    playlist_names = []
+    map_names = []
+    game_type_names = []
     
-    player = Player.find_by_name(name)
+    playlist_sql = ''
+    map_sql = ''
+    game_type_sql = ''
+    where_clause = ''
     
-    if ( filters.length == 0 )
-      results = Player.connection.select_all("select count(pg.id) as games, sum(pg.kills) as kills, sum(pg.assists) as assists, sum(pg.deaths) as deaths from player_games pg where pg.player_id=#{player.id}")
-    else
-      playlist_names = []
-      map_names = []
-      game_type_names = []
-      
-      playlist_sql = ''
-      map_sql = ''
-      game_type_sql = ''
-      
-      puts filters.inspect
-      
+    if ( !filters.nil? )
       sql_parts = []
-      if ( filters[:playlists].length > 0 && filters[:playlists][0] != 0 && filters[:playlists][0] != -1 )
+      if ( !filters[:playlists].nil? && filters[:playlists].length > 0 && filters[:playlists][0] != 0 && filters[:playlists][0] != -1 )
         playlist_sql = "g.playlist_id in (#{Utility.list(filters[:playlists], ',')})"
         sql_parts << playlist_sql
       end
@@ -34,18 +27,30 @@ class Player < ActiveRecord::Base
         sql_parts << game_type_sql
       end
       
-      if ( start_date.length > 0 )
-        sql_parts << "g.date > '#{start_date.to_s}'"
+      if ( !filters[:start_date].nil? && filters[:start_date].length > 0 )
+        sql_parts << "g.date > '#{filters[:start_date].to_s}'"
       end
       
-      if ( end_date.length > 0 )
-        sql_parts << "g.date < '#{end_date.to_s}'"
+      if ( !filters[:end_date].nil? && filters[:end_date].length > 0 )
+        sql_parts << "g.date < '#{filters[:end_date].to_s}'"
       end
       
       where_clause = Utility.list(sql_parts, ' and ')
       if ( where_clause.length > 0 )
         where_clause = ' and ' + where_clause
       end
+    end
+    
+    return where_clause
+  end
+
+  def Player.get_summary_data(name, filters)
+    player = Player.find_by_name(name)
+    
+    if ( filters.length == 0 )
+      results = Player.connection.select_all("select count(pg.id) as games, sum(pg.kills) as kills, sum(pg.assists) as assists, sum(pg.deaths) as deaths from player_games pg where pg.player_id=#{player.id}")
+    else
+      where_clause = Player.filter_where_clause(filters)
       
       sql = "select count(pg.id) as games, sum(pg.kills) as kills, sum(pg.assists) as assists, sum(pg.deaths) as deaths from games g, player_games pg where g.id=pg.game_id and pg.player_id=#{player.id} #{where_clause}" 
       
@@ -138,10 +143,18 @@ class Player < ActiveRecord::Base
     return data
   end
   
-  def Player.get_all_game_data(name)
+  def Player.get_all_game_data(name, filters)
+    puts "hahaha"
+    puts filters.inspect
     player = Player.find_by_name(name)
     
-    results = Player.connection.select_all("select g.id as game_id, dayofyear(g.date) as doy, g.date as date, pg.kills as kills, pg.assists as assists, pg.deaths as deaths, (pg.kills / pg.deaths) as kd, ((pg.kills+pg.assists)/pg.deaths) as reaper, 1 as games from player_games pg, games g where pg.game_id=g.id and pg.player_id=#{player.id}")
+    where_clause = Player.filter_where_clause(filters)
+    
+    sql = "select g.id as game_id, dayofyear(g.date) as doy, g.date as date, pg.kills as kills, pg.assists as assists, pg.deaths as deaths, (pg.kills / pg.deaths) as kd, ((pg.kills+pg.assists)/pg.deaths) as reaper, 1 as games from player_games pg, games g where pg.game_id=g.id and pg.player_id=#{player.id} #{where_clause}" 
+    
+    puts sql.to_s
+    
+    results = Player.connection.select_all(sql)
     
     data = {:name => name, :data => []}
     
@@ -162,5 +175,67 @@ class Player < ActiveRecord::Base
     end
     
     return data
+  end
+  
+  def Player.get_comparison_data(p1_name, p2_name, filters)
+    where_clause = Player.filter_where_clause(filters)
+    p1 = Player.find_by_name(p1_name)
+    p2 = Player.find_by_name(p2_name)
+    
+    data = {p1_name => {}, p2_name => {}}
+    
+    sql = "select id from games g where exists (select id from player_games where game_id=g.id and player_id=#{p1.id}) and exists (select id from player_games where game_id=g.id and player_id=#{p2.id}) #{where_clause}"
+  
+    results = Player.connection.select_all(sql)
+    
+    game_ids = []
+    results.each do |result|
+      game_ids << result['id'].to_i
+    end
+    
+    sql = "select * from player_games where player_id=#{p1.id} and game_id in (#{Utility.list(game_ids, ',')}) order by game_id"
+    
+    results = Player.connection.select_all(sql)
+    
+    results.each do |result|
+      data[p1_name][result['game_id'].to_i] = result
+    end
+    
+    sql = "select * from player_games where player_id=#{p2.id} and game_id in (#{Utility.list(game_ids, ',')}) order by game_id"
+    
+    results = Player.connection.select_all(sql)
+    
+    results.each do |result|
+      data[p2_name][result['game_id'].to_i] = result
+    end
+    
+    compare_data = {}
+    game_ids.each do |game_id|
+      if ( data[p1_name][game_id]['kills'].to_i == 0 )
+        data[p1_name][game_id]['kills'] = '1'
+      end
+      
+      if ( data[p2_name][game_id]['kills'].to_i == 0 )
+        data[p2_name][game_id]['kills'] = '1'
+      end
+      
+      if ( data[p1_name][game_id]['deaths'].to_i == 0 )
+        data[p1_name][game_id]['deaths'] = '1'
+      end
+      
+      if ( data[p2_name][game_id]['deaths'].to_i == 0 )
+        data[p2_name][game_id]['deaths'] = '1'
+      end
+      
+      compare_data[game_id] = {
+        :kills => data[p1_name][game_id]['kills'].to_i - data[p2_name][game_id]['kills'].to_i,
+        :assists => data[p1_name][game_id]['assists'].to_i - data[p2_name][game_id]['assists'].to_i,
+        :deaths => data[p1_name][game_id]['deaths'].to_i - data[p2_name][game_id]['deaths'].to_i,
+        :kd => (data[p1_name][game_id]['kills'].to_f / data[p1_name][game_id]['deaths'].to_f) / (data[p2_name][game_id]['kills'].to_f / data[p2_name][game_id]['deaths'].to_f) - 1,
+        :reaper => ((data[p1_name][game_id]['kills'].to_f + data[p1_name][game_id]['assists'].to_f) / data[p1_name][game_id]['deaths'].to_f) / ((data[p2_name][game_id]['kills'].to_f + data[p2_name][game_id]['assists'].to_f) / data[p2_name][game_id]['deaths'].to_f) - 1
+      }
+    end
+    
+    return compare_data
   end
 end

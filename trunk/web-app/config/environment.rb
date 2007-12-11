@@ -46,6 +46,8 @@ end
 
 APP_VERSION = '0.1'
 
+MainLogger = Logger.new("#{RAILS_ROOT}/log/#{RAILS_ENV}.log")
+
 require 'app_common/menu.rb'
 
 # Add new inflection rules using the following format 
@@ -67,5 +69,6 @@ PAGE_TITLES = {
   'stats/watched_players' => 'Watched Players',
   'stats/graphs' => 'Player Graphs',
   'stats/summary' => 'Data Summary',
-  'application/index' => 'Welcome to <b><i>halo3-stats-app</i></b>'
+  'application/index' => 'Welcome to <b><i>halo3-stats-app</i></b>',
+  'stats/compare' => 'Compare Players'
 }

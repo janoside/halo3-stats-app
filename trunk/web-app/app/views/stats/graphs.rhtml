@@ -35,8 +35,10 @@ function endGraph() {
 	                 pd_value[:name].to_s, {
 	                     :url => {
 	                         :controller  => 'stats',
-	                         :action      => 'render_graph',
-	                         :data_type   => pd_value[:data_type]
+	                         :action      => @graph_action,
+	                         :data_type   => pd_value[:data_type],
+	                         :p1 => @p1.to_s,
+	                         :p2 => @p2.to_s
 	                     },
 	                     :update => 'graph',
 	                     :loading  => "startGraph('graph_#{pd_value[:data_type].to_s}');",
@@ -57,9 +59,11 @@ function endGraph() {
 	                 pd_value[:name].to_s, {
 	                     :url => {
 	                         :controller  => 'stats',
-	                         :action      => 'render_graph',
+	                         :action      => @graph_action,
 	                         :data_type   => pd_value[:data_type],
-	                         :total => '1'
+	                         :total => '1',
+	                         :p1 => @p1.to_s,
+	                         :p2 => @p2.to_s
 	                     },
 	                     :update => 'graph',
 	                     :loading  => "startGraph('graph_#{pd_value[:data_type].to_s}_total');",
