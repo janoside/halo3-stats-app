@@ -15,7 +15,7 @@ a.graphTypeLink:hover {background: #cbebff; color: #000;}
 a.graphTypeLink:link, a.graphTypeLink:visited {text-decoration: none; color: #000; display: block; padding: 1px 2px;}
 
 a.graphActiveLink:hover {background: #cbebff; color: #000;}
-a.graphActiveLink:link, a.graphActiveLink:visited {text-decoration: none; color: #000; display: block; padding: 1px 2px; background: #2465db; color: #fff;}
+a.graphActiveLink:link, a.graphActiveLink:visited {text-decoration: none; color: #000; display: block; padding: 1px 2px; background: #5096d7; color: #fff;}
 
 p {padding: 5px;}
 .pList {margin-left: 15px;}
@@ -38,6 +38,9 @@ a:hover {color: #353580;}
 
 #summary {padding: 10px;}
 
+#visiblePlayers {margin-right: 20px;}
+#comparePlayerSelect {border-bottom: solid 1px #ccc; padding: 5px; margin-bottom: 10px;}
+
 .dataTable {border: solid 1px #777; padding: 3px;}
 	.dataTable td {padding: 4px;}
 	.dataTable .columnLabel {background: url(/images/pag_bg.jpg) repeat;}
@@ -47,7 +50,7 @@ a:hover {color: #353580;}
 	.dataCell {font-family: monospace; font-size: 125%; text-align: right;}
 
 
-a.sortButton:hover {background: #ccc; color: #000;}
+a.sortButton:hover {background: #4e90cd; color: #000;}
 	a.sortButton:link, a.sortButton:visited {text-decoration: none; display: block; font-weight: bold; color: #000;}
 
 

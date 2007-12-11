@@ -1,0 +1,61 @@
+<b>Players to compare</b>
+
+<script type="text/javascript">
+activeGraph = '';
+function startGraph(name) {
+	if ( activeGraph != '' ) {
+		document.getElementById(activeGraph).className = 'graphTypeLink';
+	}
+	activeGraph = name;
+	document.getElementById(name).className = 'graphActiveLink';
+	document.getElementById('loadingStatus').style.display='';
+	document.getElementById('graph').style.display='none';
+}
+function endGraph() {
+	document.getElementById('loadingStatus').style.display='none';
+	document.getElementById('graph').style.display='';
+}
+</script>
+
+<div id="comparePlayerSelect">
+	<%=
+	    form_remote_tag(
+	        :url => {
+	            :controller => 'stats',
+	            :action     => 'set_compared_players'
+	        },
+	        :update   => 'comparison'
+	        #:loading  => update_content('status', :show => true, :content => loading_tag('Saving')),
+	        #:success  => update_content('status', :show => false),
+	        #:complete => visual_effect(:blind_down, :userList, :duration => '0.0'),
+	        #:failure  => "alert('Oops, try again.');"
+	    )
+	%>
+	
+	<table>
+		<tr>
+			<td>
+				Player 1
+			</td>
+			<td>
+				&nbsp;&nbsp;Player 2
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<input name="player1" type="text" />
+			</td>
+			<td>
+				&nbsp;&nbsp;<input name="player2" type="text" />
+			</td>
+			<td>
+				&nbsp;&nbsp;<input type="submit" value="Compare" />
+			</td>
+		</tr>
+	</table>
+	
+	<%= end_form_tag %>
+</div>
+
+<div id="comparison">
+</div>

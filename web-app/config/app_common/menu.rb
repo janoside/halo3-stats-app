@@ -12,7 +12,8 @@ APP_MENU = [
     :links => [
       {:name => 'Summary', :url => '/stats/summary'},
       {:name => 'Graphs', :url => '/stats/graphs'},
-      {:name => 'Weapon Breakdown', :url => '/stats/player_weapons'}
+      {:name => 'Weapon Breakdown', :url => '/stats/player_weapons'},
+      {:name => 'Compare Players', :url => '/stats/compare'}
     ]
   }
 ]

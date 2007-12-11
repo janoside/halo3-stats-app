@@ -1,5 +1,6 @@
 # Filters added to this controller apply to all controllers in the application.
 # Likewise, all the methods added will be available for all controllers.
+require 'log.rb'
 
 class ApplicationController < ActionController::Base
   # Pick a unique cookie name to distinguish our session data from others'
@@ -43,6 +44,10 @@ class ApplicationController < ActionController::Base
   def logout()
     session[:user_id] = nil
     redirect_to(:controller => 'application', :action => 'login')
+  end
+  
+  def rescue_action(exception)
+    Log.exception(exception)
   end
   
   private
